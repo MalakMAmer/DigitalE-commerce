@@ -55,7 +55,7 @@ function Navbar() {
             transition={{ duration: 0.3 }}
             className="md:hidden bg-white border-t border-gray-300 shadow-lg text-center"
           >
-            <div className="flex flex-col gap-4 py-4 text-gray-800 font-medium">
+            <div className="flex flex-col gap-4 py-1 text-gray-800 font-medium">
               <Link onClick={() => setIsOpen(false)} to="/">{t('nav.home') || 'الرئيسية'}</Link>
               <Link onClick={() => setIsOpen(false)} to="/products">{t('nav.products') || 'المتجر'}</Link>
               <Link onClick={() => setIsOpen(false)} to="/offers">{t('nav.offers') || 'العروض'}</Link>
