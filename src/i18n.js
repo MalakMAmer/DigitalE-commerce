@@ -12,7 +12,7 @@ nav: {
     about: 'من نحن',
     team: 'الفريق',
     contact: 'اتصل بنا',
-    login: 'تسجيل الدخول'
+    signup: 'سجل الآن!'
 },
 hero: {
     title: 'منصة المنتجات الرقمية العراقية',
@@ -46,7 +46,7 @@ nav: {
     offers: 'offers',
     team: 'Team',
     contact: 'اتصل بنا',
-    login: 'login'
+    signup: 'signup'
 },
 hero: {
     title: 'Iraqi Digital Products Platform',

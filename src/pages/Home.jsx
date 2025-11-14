@@ -9,6 +9,7 @@ import NewestOffers from '../sections/NewestOffers'
 import WhyUs from '../sections/WhyUs'
 import DigitalProductsSection from '../sections/DigitalProductsSection'
 import FAQSection from '../sections/FAQSection'
+import SalesHeader from '../components/SalesHeader'
 
 function Home() {
   return (
@@ -16,10 +17,11 @@ function Home() {
             <Hero />
             {/* <About /> */}
             <WhyUs />
-            <NewestOffers />
-            <ProductsList />
+            {/* <NewestOffers /> */}
+            {/* <ProductsList /> */}
             <DigitalProductsSection />
-            <Team />
+            <SalesHeader />
+            {/* <Team /> */}
             <SignUpSection />
             <FAQSection />
             <CTA />

@@ -38,22 +38,36 @@ function FAQSection() {
   return (
     <section dir="rtl" className="py-20 px-6 bg-gradient-to-b from-purple-200 via-purple-100 to-white">
       <div className="max-w-4xl mx-auto text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="text-4xl font-extrabold text-gray-800 mb-3"
-        >
-          الأسئلة الشائعة
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2, ease: 'easeOut' }}
-          className="text-gray-700 mb-12"
-        >
-          كل ما تحتاج معرفته — إجابات على الأسئلة الأكثر شيوعاً حول منتجات BMD الرقمية
-        </motion.p>
+        {/* Green label */}
+      <motion.span
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-[#300C66] text-white px-4 py-1 rounded-full text-sm font-semibold inline-block mb-4"
+      >
+        الأسئلة الشائعة
+      </motion.span>
+
+      {/* Bold black headline */}
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="text-5xl md:text-6xl font-extrabold text-[#0F0F0F] mb-4"
+      >
+        كل ما تحتاج معرفته
+      </motion.h2>
+
+      {/* Subtle gray subtitle */}
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="text-[#6B7280] text-lg mb-12"
+      >
+        كل ما تحتاج معرفته — إجابات على الأسئلة الأكثر شيوعاً حول منتجات الرقمية
+        <span className="font-semibold text-[#0F0F0F]"> BMD</span>
+      </motion.p>
 
         {/* Outer div preserves its height */}
         <div className="space-y-4">

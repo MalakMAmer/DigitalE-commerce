@@ -4,14 +4,26 @@ import { motion } from 'framer-motion'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { FaBolt, FaGift, FaLightbulb } from 'react-icons/fa'
+import { useNavigate } from "react-router-dom"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 function SignUpSection() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm()
+  const navigate = useNavigate()
 
   const onSubmit = (data) => {
-    console.log('Sign up data:', data)
-    alert(`شكراً لانضمامك، ${data.name}!`)
-    reset()
+    toast.success(`🎉 شكراً لانضمامك يا ${data.name}!`, {
+      position: "top-center",
+      autoClose: 2000,
+      theme: "colored",
+      style: { backgroundColor: "#7c3aed", color: "#fff", borderRadius: "12px" },
+    })
+
+    setTimeout(() => {
+      navigate("/signup", { state: data })
+      reset()
+    }, 2200)
   }
 
   useEffect(() => {
@@ -19,7 +31,7 @@ function SignUpSection() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden py-24 px-4 bg-gradient-to-br from-gray-50 via-white to-purple-50">
+    <section className="relative overflow-hidden py-24 px-4 bg-gradient-to-br from-gray-50 via-white to-purple-50" id='contactUs'>
       <div
         className="max-w-5xl mx-auto bg-white/80 backdrop-blur-lg p-10 lg:p-16 rounded-3xl shadow-2xl border border-purple-100 text-center relative z-10"
         data-aos="fade-up"
@@ -44,7 +56,7 @@ function SignUpSection() {
           انضم إلى مستخدمينا للحصول على الكوبونات الحصرية والصفقات الخاصة قبل الجميع.
         </motion.p>
 
-        {/* Small Feature Highlights */}
+        {/* Highlights */}
         <motion.div
           className="flex flex-wrap justify-center items-center gap-6 mb-10"
           initial={{ opacity: 0 }}
@@ -112,9 +124,22 @@ function SignUpSection() {
         </motion.p>
       </div>
 
-      {/* Floating gradient glow effects */}
+      {/* Floating gradient effects */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-purple-200/20 blur-3xl rounded-full"></div>
       <div className="absolute bottom-0 right-1/3 w-72 h-72 bg-purple-300/20 blur-3xl rounded-full"></div>
+
+      {/* Toast container */}
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        rtl
+        pauseOnHover
+        draggable
+        theme="colored"
+        toastClassName="rounded-xl text-sm sm:text-base"
+        bodyClassName="flex items-center justify-center text-center"
+      />
     </section>
   )
 }

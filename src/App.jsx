@@ -11,6 +11,11 @@ import { useTranslation } from 'react-i18next'
 import SignUpPage from './pages/SignUpPage'
 import SignInPage from './pages/SignInPage'
 import Dashboard from './pages/Dashboard'
+import ProtectedRoute from './components/ProtectedRoute'
+import FavProducts from './pages/FavProducts'
+import AllProducts from './pages/allProducts'
+import PaymentForm from './pages/PaymentForm'
+import FormBill from './pages/FormBill'
 
 function App() {
   const { i18n } = useTranslation()
@@ -36,12 +41,20 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<Product />} />
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/favProducts" element={<FavProducts />} />
+          <Route path="/allProducts" element={<AllProducts />} />
+          <Route path="/payment" element={<PaymentForm />} />
+          <Route path="/bill" element={<FormBill />} />
           <Route
             path="/dashboard"
-            element={isLoggedIn ? <Dashboard /> : <Navigate to="/signin" />}
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
-        </Routes>
+      </Routes>
       </main>
       <Footer />
     </div>
