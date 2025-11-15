@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { Plus, Trash2, LogOut } from "lucide-react";
 import { PackagePlus, TicketPercent, Megaphone } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Dashboard() {
   const [products, setProducts] = useState([]);

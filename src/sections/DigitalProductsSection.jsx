@@ -5,6 +5,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import bgHero from "../assets/bgHero.jpeg";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 function DigitalProductsSection() {
   const [filter, setFilter] = useState("all");

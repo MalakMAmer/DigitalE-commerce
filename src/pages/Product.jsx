@@ -12,6 +12,8 @@ import {
 import { FiShield } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 function Product() {
   const { id } = useParams();
