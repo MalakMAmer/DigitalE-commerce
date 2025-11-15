@@ -13,7 +13,6 @@ import SignInPage from './pages/SignInPage'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import FavProducts from './pages/FavProducts'
-// import AllProducts from './pages/allProducts'
 import PaymentForm from './pages/PaymentForm'
 import FormBill from './pages/FormBill'
 
