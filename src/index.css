@@ -1,9 +1,9 @@
+
+@import 'https://unpkg.com/aos@3.0.0/dist/aos.css';
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'https://unpkg.com/aos@3.0.0/dist/aos.css';
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
-
 
 html, body, #root {
 height: 100%;
