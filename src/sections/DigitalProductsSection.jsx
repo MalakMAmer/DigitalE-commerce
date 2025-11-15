@@ -33,7 +33,7 @@ function DigitalProductsSection() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/")
+    fetch(`${API_URL}/api/products/`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error("Error loading products:", err));
@@ -42,7 +42,7 @@ function DigitalProductsSection() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:5000/api/user/favorites", { headers: { Authorization: `Bearer ${token}` } })
+      fetch(`${API_URL}/api/user/favorites`, { headers: { Authorization: `Bearer ${token}` } })
         .then((res) => res.json())
         .then((data) => setFavorites(data))
         .catch((err) => console.error(err));
@@ -54,7 +54,7 @@ function DigitalProductsSection() {
     if (!token) return alert("يجب تسجيل الدخول أولاً");
 
     try {
-      const res = await fetch(`http://localhost:5000/api/user/favorites/${productId}`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/api/user/favorites/${productId}`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       setFavorites(data.favorites);
     } catch (err) {

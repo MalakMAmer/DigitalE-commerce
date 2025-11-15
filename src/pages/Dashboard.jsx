@@ -37,7 +37,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products")
+      .get(`${API_URL}/api/products`)
       .then((res) => setProducts(res.data))
       .catch(() => toast.error("فشل تحميل المنتجات"));
   }, []);
@@ -59,11 +59,11 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/admin/products", form, {
+      await axios.post(`${API_URL}/api/admin/products`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("تمت إضافة المنتج بنجاح✔");
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get(`${API_URL}/api/products`);
       setProducts(res.data);
       setForm({ name: "", price: "", description: "", category: "", discount: "", images: [""] });
     } catch {
@@ -73,7 +73,7 @@ export default function Dashboard() {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/products/${id}`, {
+      await axios.delete(`${API_URL}/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(products.filter((p) => p._id !== id));
@@ -87,7 +87,7 @@ export default function Dashboard() {
   const handleOfferSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/admin/offers", offerForm, {
+      await axios.post(`${API_URL}/api/admin/offers`, offerForm, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("تمت إضافة العرض بنجاح 🎉");
@@ -101,7 +101,7 @@ export default function Dashboard() {
   const handleAdSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/admin/ads", adForm, {
+      await axios.post(`${API_URL}/api/admin/ads`, adForm, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("تمت إضافة الإعلان بنجاح 📢");

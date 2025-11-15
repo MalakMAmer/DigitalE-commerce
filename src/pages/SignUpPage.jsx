@@ -24,7 +24,7 @@ function SignUpPage() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", data);
+      const res = await axios.post(`${API_URL}/api/auth/signup`, data);
       toast.success(res.data.message || "تم التسجيل بنجاح 🎉", {
         position: "top-center",
         autoClose: 2500,

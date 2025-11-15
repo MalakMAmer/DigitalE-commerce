@@ -28,7 +28,7 @@ function FavProducts() {
       return
     }
 
-    fetch('http://localhost:5000/api/user/favorites', {
+    fetch(`${API_URL}/api/user/favorites`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

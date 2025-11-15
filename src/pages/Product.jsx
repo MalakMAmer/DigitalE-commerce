@@ -20,7 +20,7 @@ function Product() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`${API_URL}/api/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
         const normalized = {
