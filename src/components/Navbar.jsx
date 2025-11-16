@@ -100,7 +100,7 @@ function Navbar() {
               transition={{ duration: 0.3 }}
               className="md:hidden bg-white border-t border-gray-300 shadow-lg text-center"
             >
-              <div className="flex flex-col gap-2 text-gray-800 font-medium">
+              <div className="flex flex-col gap-2 text-gray-800 font-medium p-4">
                 <Link onClick={() => setIsOpen(false)} to="/" className="cursor-pointer hover:text-purple-400 transition-all">
                   {t('nav.home') || 'الرئيسية'}
                 </Link>
