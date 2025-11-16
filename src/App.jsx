@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import FavProducts from './pages/FavProducts'
 import PaymentForm from './pages/PaymentForm'
 import FormBill from './pages/FormBill'
+import AllProducts from './pages/allProducts'
 
 function App() {
   const { i18n } = useTranslation()
@@ -42,6 +43,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<SignInPage />} />
           <Route path="/favProducts" element={<FavProducts />} />
+          <Route path="/products" element={<AllProducts />} />
           <Route path="/payment" element={<PaymentForm />} />
           <Route path="/bill" element={<FormBill />} />
           <Route
