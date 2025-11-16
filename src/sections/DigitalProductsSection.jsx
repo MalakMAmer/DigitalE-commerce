@@ -147,7 +147,7 @@ function DigitalProductsSection() {
         </div>
 
         {/* === Product Section === */}
-        <motion.h2 className="text-3xl font-extrabold text-center text-purple-700 mb-10" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.h2 className="text-3xl font-extrabold text-center text-purple-700 mb-10"  id="digitalProducts" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           منتجات رقمية بأسعار مميزة
         </motion.h2>
 

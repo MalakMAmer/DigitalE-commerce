@@ -43,7 +43,7 @@ function SignUpSection() {
           transition={{ duration: 0.6 }}
           className="text-4xl font-extrabold text-purple-700 mb-4"
         >
-          اشترك في نشرتنا لتصلك أحدث العروض الرقمية والخصومات
+          سجل الآن و اشترك في أحدث العروض الرقمية والخصومات
         </motion.h2>
 
         {/* Subheading */}
@@ -53,7 +53,7 @@ function SignUpSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-gray-700 mb-10 text-lg leading-relaxed"
         >
-          انضم إلى مستخدمينا للحصول على الكوبونات الحصرية والصفقات الخاصة قبل الجميع.
+          انضم إلى مستخدمينا للحصول على الكوبونات الحصرية والصفقات الخاصة.
         </motion.p>
 
         {/* Highlights */}

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Plus, Trash2, LogOut } from "lucide-react";
+import { Images } from "lucide-react";
 import { PackagePlus, TicketPercent, Megaphone } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -10,28 +11,20 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function Dashboard() {
   const [products, setProducts] = useState([]);
   const [activeSection, setActiveSection] = useState("addProduct");
+  const [offers, setOffers] = useState([]);
+  const [sales, setSales] = useState([]); 
 
   const [form, setForm] = useState({
     name: "",
     price: "",
-    description: "",
+    shortDescription: "",
+    longDescription: "",
     category: "",
-    discount: "",
+    sale: "",
     images: [""],
   });
 
-  const [offerForm, setOfferForm] = useState({
-    title: "",
-    description: "",
-    discount: "",
-    image: "",
-  });
-
-  const [adForm, setAdForm] = useState({
-    title: "",
-    link: "",
-    image: "",
-  });
+  const [salesForm, setSalesForm] = useState({ image: ["", ""] });
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -41,16 +34,21 @@ export default function Dashboard() {
       .get(`${API_URL}/api/products`)
       .then((res) => setProducts(res.data))
       .catch(() => toast.error("فشل تحميل المنتجات"));
+    axios.get(`${API_URL}/api/offers`).then((res) => setOffers(res.data));
+    axios.get(`${API_URL}/api/sales`).then((res) => setSales(res.data));
   }, []);
 
   // Product handlers
+  
+
   const addImageInput = () => {
     if (form.images.length >= 10) {
-      toast.error("لا يمكن إضافة أكثر من 10 صور"); // max 10
+      toast.error("لا يمكن إضافة أكثر من 10 صور");
       return;
     }
     setForm({ ...form, images: [...form.images, ""] });
   };
+
   const updateImage = (index, value) => {
     const updatedImages = [...form.images];
     updatedImages[index] = value;
@@ -63,59 +61,111 @@ export default function Dashboard() {
       await axios.post(`${API_URL}/api/admin/products`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("تمت إضافة المنتج بنجاح✔");
+
+      toast.success("تمت إضافة المنتج بنجاح ✔");
+
       const res = await axios.get(`${API_URL}/api/products`);
       setProducts(res.data);
-      setForm({ name: "", price: "", description: "", category: "", discount: "", images: [""] });
+
+      setForm({
+        name: "",
+        price: "",
+        shortDescription: "",
+        longDescription: "",
+        category: "",
+        sale: "",
+        images: [""],
+      });
     } catch {
       toast.error("فشل إضافة المنتج ❌");
     }
   };
+  // ========================= OFFER HANDLERS =============================
 
-  const deleteProduct = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/api/admin/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(products.filter((p) => p._id !== id));
-      toast.success("تم حذف المنتج ✔");
-    } catch {
-      toast.error("فشل حذف المنتج ❌");
-    }
+  
+
+  // OFFER STATE
+  const [offerForm, setOfferForm] = useState({ image: "" });
+
+  // HANDLE INPUT CHANGE
+  const updateOfferImage = (value) => {
+    setOfferForm({ image: value });
   };
 
-  // Offer handler
+  // SUBMIT OFFER
   const handleOfferSubmit = async (e) => {
     e.preventDefault();
+
+    if (!offerForm.image.trim()) {
+      toast.error("يجب إضافة رابط الصورة");
+      return;
+    }
+
     try {
       await axios.post(`${API_URL}/api/admin/offers`, offerForm, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       toast.success("تمت إضافة العرض بنجاح 🎉");
-      setOfferForm({ title: "", description: "", discount: "", image: "" });
+
+      setOfferForm({ image: "" });
+
+      const res = await axios.get(`${API_URL}/api/offers`);
+      setOffers(res.data);
+
     } catch {
       toast.error("حدث خطأ أثناء إضافة العرض ❌");
     }
   };
 
-  // Ad handler
-  const handleAdSubmit = async (e) => {
-    e.preventDefault();
+  // DELETE OFFER
+  const deleteOffer = async (id) => {
     try {
-      await axios.post(`${API_URL}/api/admin/ads`, adForm, {
+      await axios.delete(`${API_URL}/api/admin/offers/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("تمت إضافة الإعلان بنجاح 📢");
-      setAdForm({ title: "", link: "", image: "" });
+      setOffers(offers.filter((o) => o._id !== id));
+      toast.success("تم حذف العرض ✔");
     } catch {
-      toast.error("حدث خطأ أثناء إضافة الإعلان ❌");
+      toast.error("فشل حذف العرض ❌");
     }
   };
 
+
+  // ========================= SALES HEADER HANDLERS =============================
+  const updateSalesImage = (index, value) => {
+  const arr = [...salesForm.image];
+  arr[index] = value;
+  setSalesForm({ image: arr });
+  };
+
+
+  const handleSalesSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate non-empty URLs
+    if (!salesForm.image.every(url => url.trim() !== "")) {
+      toast.error("يرجى إدخال روابط الصور صحيحة");
+      return;
+    }
+
+    try {
+      await axios.post(`${API_URL}/api/admin/sales`, salesForm, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("تم حفظ الصور بنجاح ✔");
+      const res = await axios.get(`${API_URL}/api/sales`);
+      setSales(res.data);
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      toast.error("تعذر حفظ الصور ❌");
+    }
+  };
+
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login");
+  localStorage.removeItem("token");
+  navigate("/login");
   };
 
   return (
@@ -139,77 +189,188 @@ export default function Dashboard() {
             <h2 className="text-2xl font-semibold text-purple-700 mb-6 text-center">
               إضافة منتج جديد
             </h2>
+
             <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 justify-between">
+
               {/* Product data */}
               <fieldset className="flex-1 border p-6 rounded-xl shadow bg-white">
-                <legend className="px-3 text-purple-700 font-semibold text-lg">بيانات المنتج</legend>
+                <legend className="px-3 text-purple-700 font-semibold text-lg">
+                  بيانات المنتج
+                </legend>
+
                 <div className="flex flex-col gap-4 mt-4">
-                  <input type="text" placeholder="اسم المنتج" className="p-3 border rounded-lg" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                  <input type="number" placeholder="السعر" className="p-3 border rounded-lg" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-                  <input type="text" placeholder="الوصف" className="p-3 border rounded-lg" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-                  <input type="text" placeholder="الفئة" className="p-3 border rounded-lg" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-                  <input type="text" placeholder="الخصم" className="p-3 border rounded-lg" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
+                  <input type="text" placeholder="اسم المنتج"
+                    className="p-3 border rounded-lg"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })} />
+
+                  <input type="number" placeholder="السعر"
+                    className="p-3 border rounded-lg"
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: e.target.value })} />
+
+                  <input type="text" placeholder="وصف قصير"
+                    className="p-3 border rounded-lg"
+                    value={form.shortDescription}
+                    onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} />
+
+                  <textarea placeholder="وصف طويل"
+                    className="p-3 border rounded-lg h-28"
+                    value={form.longDescription}
+                    onChange={(e) => setForm({ ...form, longDescription: e.target.value })} />
+
+                  <input type="text" placeholder="الفئة"
+                    className="p-3 border rounded-lg"
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })} />
+
+                  <input type="number" placeholder="قيمة الخصم (Sale)"
+                    className="p-3 border rounded-lg"
+                    value={form.sale}
+                    onChange={(e) => setForm({ ...form, sale: e.target.value })} />
                 </div>
               </fieldset>
 
               {/* Product images */}
               <fieldset className="flex-1 border p-6 rounded-xl shadow bg-white relative">
-                <legend className="flex items-center gap-2 text-purple-700 font-semibold text-lg">صور المنتج</legend>
-                <button type="button" onClick={addImageInput} className="absolute top-3 left-3 bg-purple-700 text-white p-1.5 rounded-lg hover:bg-purple-800">
+                <legend className="flex items-center gap-2 text-purple-700 font-semibold text-lg">
+                  صور المنتج
+                </legend>
+
+                <button type="button"
+                  onClick={addImageInput}
+                  className="absolute top-3 left-3 bg-purple-700 text-white p-1.5 rounded-lg hover:bg-purple-800">
                   <Plus size={20} />
                 </button>
+
                 <div className="flex flex-col gap-4 mt-4">
                   {form.images.map((img, index) => (
-                    <input key={index} type="text" placeholder={`رابط الصورة ${index + 1}`} className="p-3 border rounded-lg" value={img} onChange={(e) => updateImage(index, e.target.value)} />
-                    
+                    <input
+                      key={index}
+                      type="text"
+                      placeholder={`رابط الصورة ${index + 1}`}
+                      className="p-3 border rounded-lg"
+                      value={img}
+                      onChange={(e) => updateImage(index, e.target.value)}
+                    />
                   ))}
                 </div>
               </fieldset>
             </form>
-            <button onClick={handleSubmit} className="mt-6 w-full bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800">إضافة المنتج</button>
 
-            {/* Product cards */}
+            <button
+              onClick={handleSubmit}
+              className="mt-6 w-full bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800">
+              إضافة المنتج
+            </button>
+
+            {/* PRODUCT CARDS */}
             <div className="flex flex-wrap gap-8 mt-8">
               {products.map((p) => (
                 <div key={p._id} className="w-full sm:w-[48%] lg:w-[30%] bg-white rounded-2xl shadow overflow-hidden">
-                  <img src={p.images?.[0] || "https://via.placeholder.com/400"} alt={p.name} className="w-full h-56 object-cover" />
+
+                  <img src={p.images?.[0] || "https://via.placeholder.com/400"}
+                    className="w-full h-56 object-cover" />
+
                   <div className="p-5">
                     <h3 className="text-xl font-bold text-gray-800">{p.name}</h3>
                     <p className="text-gray-600">{p.category}</p>
-                    <p className="text-gray-600">{p.description}</p>
-                    <p className="font-semibold text-purple-700 mt-2">{p.price} ج.م</p>
-                    <button onClick={() => deleteProduct(p._id)} className="mt-4 w-full bg-red-500 text-white flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-red-600">
+                    <p className="text-gray-600">{p.shortDescription}</p>
+                    <p className="text-purple-700 font-bold mt-2">{p.price} ج.م</p>
+                    {p.sale > 0 && (
+                      <p className="text-red-600 font-semibold">خصم: {p.sale}%</p>
+                    )}
+
+                    <button onClick={() => deleteProduct(p._id)}
+                      className="mt-4 w-full bg-red-500 text-white flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-red-600">
                       <Trash2 size={18} /> حذف
                     </button>
                   </div>
+
                 </div>
               ))}
             </div>
           </div>
         )}
 
+        {/* ================== OFFER SECTION ================== */}
         {activeSection === "addOffer" && (
-          <div className="w-full bg-white p-10 rounded-2xl shadow-xl text-purple-700 font-semibold">
-            <h2 className="text-3xl mb-6 flex items-center gap-2"><TicketPercent size={28} /> إضافة عرض جديد</h2>
-            <form onSubmit={handleOfferSubmit} className="flex flex-col gap-4 max-w-lg">
-              <input type="text" placeholder="عنوان العرض" className="p-3 border border-gray-300 rounded-lg" value={offerForm.title} onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })} />
-              <input type="text" placeholder="وصف العرض" className="p-3 border border-gray-300 rounded-lg" value={offerForm.description} onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })} />
-              <input type="number" placeholder="نسبة الخصم" className="p-3 border border-gray-300 rounded-lg" value={offerForm.discount} onChange={(e) => setOfferForm({ ...offerForm, discount: e.target.value })} />
-              <button type="submit" className="bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800 transition-all">✔ إضافة العرض</button>
-            </form>
+        <div className="w-full bg-white p-10 rounded-2xl shadow-xl">
+        <h2 className="text-3xl mb-6 flex items-center gap-2 text-purple-700"><TicketPercent size={28} /> إدارة عروض الصفحة</h2>
+
+
+        <form onSubmit={handleOfferSubmit} className="flex flex-col gap-4 max-w-lg">
+        {offerForm.image.map((img, i) => (
+          <input
+            key={i}
+            type="text"
+            placeholder={`رابط صورة العرض ${i + 1}`}
+            className="p-3 border rounded-lg"
+            value={img}
+            onChange={(e) => updateOfferImage(i, e.target.value)}
+          />
+        ))}
+
+        <button
+          type="button"
+          onClick={addOfferImageInput}
+          className="bg-purple-600 text-white py-2 rounded-lg"
+        >
+          إضافة صورة أخرى
+        </button>
+
+        <button
+          type="submit"
+          className="bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800"
+        >
+          إضافة العرض
+        </button>
+      </form>
+
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {offers.map((o) => (
+          <div key={o._id} className="bg-white shadow rounded-xl overflow-hidden">
+            <img
+              src={o.image}
+              className="w-full h-56 object-cover border-b"
+            />
+            <button
+              onClick={() => deleteOffer(o._id)}
+              className="w-full bg-red-500 text-white py-2 hover:bg-red-600"
+            >
+              حذف
+            </button>
           </div>
+        ))}
+      </div>
+        </div>
         )}
 
-        {activeSection === "addAD" && (
-          <div className="w-full bg-white p-10 rounded-2xl shadow-xl text-purple-700 font-semibold">
-            <h2 className="text-3xl mb-6 flex items-center gap-2"><Megaphone size={28} /> إضافة إعلان</h2>
-            <form onSubmit={handleAdSubmit} className="flex flex-col gap-4 max-w-lg">
-              <input type="text" placeholder="عنوان الإعلان" className="p-3 border border-gray-300 rounded-lg" value={adForm.title} onChange={(e) => setAdForm({ ...adForm, title: e.target.value })} />
-              <input type="text" placeholder="وصف الإعلان" className="p-3 border border-gray-300 rounded-lg" value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} />
-              <input type="text" placeholder="رابط صورة الإعلان" className="p-3 border border-gray-300 rounded-lg" value={adForm.image} onChange={(e) => setAdForm({ ...adForm, image: e.target.value })} />
-              <button type="submit" className="bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800 transition-all">📢 نشر الإعلان</button>
-            </form>
-          </div>
+
+        {/* ================== SALES HEADER SECTION ================== */}
+        {activeSection === "addSales" && (
+        <div className="w-full bg-white p-10 rounded-2xl shadow-xl">
+        <h2 className="text-3xl mb-6 flex items-center gap-2 text-purple-700"><Images size={28} /> إدارة صور الهيدر (موبايل + لابتوب)</h2>
+
+
+        <form onSubmit={handleSalesSubmit} className="flex flex-col gap-4 max-w-lg">
+        <input type="text" placeholder="رابط صورة اللابتوب" className="p-3 border rounded-lg" value={salesForm.image[0]} onChange={(e) => updateSalesImage(0, e.target.value)} />
+        <input type="text" placeholder="رابط صورة الموبايل" className="p-3 border rounded-lg" value={salesForm.image[1]} onChange={(e) => updateSalesImage(1, e.target.value)} />
+        <button type="submit" className="bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800">حفظ الصور</button>
+        </form>
+
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        {sales.map((s) => (
+        <div key={s._id} className="bg-white shadow rounded-xl overflow-hidden">
+        <img src={s.image?.[0]} className="w-full h-48 object-cover border-b" />
+        <img src={s.image?.[1]} className="w-full h-48 object-cover" />
+        </div>
+        ))}
+        </div>
+        </div>
         )}
       </div>
 
@@ -221,7 +382,7 @@ export default function Dashboard() {
         <button onClick={() => setActiveSection("addOffer")} className={`p-3 rounded-xl text-lg flex items-center gap-3 transition-all ${activeSection === "addOffer" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>
           <TicketPercent size={22} /> إضافة عرض
         </button>
-        <button onClick={() => setActiveSection("addAD")} className={`p-3 rounded-xl text-lg flex items-center gap-3 transition-all ${activeSection === "addAD" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>
+        <button onClick={() => setActiveSection("addSales")} className={`p-3 rounded-xl text-lg flex items-center gap-3 transition-all ${activeSection === "addSales" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>
           <Megaphone size={22} /> إضافة إعلان
         </button>
       </div>

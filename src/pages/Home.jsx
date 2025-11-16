@@ -10,6 +10,7 @@ import WhyUs from '../sections/WhyUs'
 import DigitalProductsSection from '../sections/DigitalProductsSection'
 import FAQSection from '../sections/FAQSection'
 import SalesHeader from '../components/SalesHeader'
+import ContactButton from '../components/ContactButton'
 
 function Home() {
   return (
@@ -25,6 +26,7 @@ function Home() {
             <SignUpSection />
             <FAQSection />
             <CTA />
+            <ContactButton />
         </div>
     )
 }
