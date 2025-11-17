@@ -15,7 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import FavProducts from './pages/FavProducts'
 import PaymentForm from './pages/PaymentForm'
 import FormBill from './pages/FormBill'
-import AllProducts from './pages/allProducts'
+import AllProducts from './pages/AllProducts'
 
 function App() {
   const { i18n } = useTranslation()
