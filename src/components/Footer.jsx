@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa'
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaTelegramPlane } from 'react-icons/fa'
 import logo from '../assets/Logo.png'
 
 function Footer() {
@@ -43,10 +43,10 @@ function Footer() {
           <div className="flex-1 flex flex-col items-center gap-3">
             <h3 className="font-semibold mb-2 text-xl">تواصل معنا</h3>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-purple-300 transition hover:scale-110"><FaFacebookF size={20} /></a>
-              <a href="#" className="hover:text-purple-300 transition hover:scale-110"><FaTwitter size={20} /></a>
-              <a href="#" className="hover:text-purple-300 transition hover:scale-110"><FaInstagram size={20} /></a>
-              <a href="#" className="hover:text-purple-300 transition hover:scale-110"><FaLinkedinIn size={20} /></a>
+              <a href="https://www.facebook.com/share/1DHUM8BJyw/?mibextid=wwXIfr" className="hover:text-purple-300 transition hover:scale-110"><FaFacebookF size={20} /></a>
+              <a href="https://t.me/bmdiq" className="hover:text-purple-300 transition hover:scale-110"><FaTelegramPlane size={20} /></a>
+              <a href="https://www.instagram.com/bmd.iq2/#" className="hover:text-purple-300 transition hover:scale-110"><FaInstagram size={20} /></a>
+              <a href="https://www.linkedin.com/company/bmd-iq/" className="hover:text-purple-300 transition hover:scale-110"><FaLinkedinIn size={20} /></a>
             </div>
 
             {/* Clickable Email */}

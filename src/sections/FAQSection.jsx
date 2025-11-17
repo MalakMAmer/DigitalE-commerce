@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 
 function FAQSection() {
   const [faqData, setFaqData] = useState([]);
@@ -9,8 +12,7 @@ function FAQSection() {
   useEffect(() => {
     const fetchFaq = async () => {
       try {
-        const res = axios.get(`${import.meta.env.VITE_API_URL}/api/faq`);
-;
+        const res = await axios.get(`${API_URL}/api/faq`);
         setFaqData(res.data);
       } catch (err) {
         console.log("Error loading FAQ:", err);
@@ -19,6 +21,7 @@ function FAQSection() {
 
     fetchFaq();
   }, []);
+
 
   const toggleFAQ = (i) => {
     setOpenIndex(openIndex === i ? null : i);

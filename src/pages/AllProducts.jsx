@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaSearch, FaBook, FaGamepad, FaLaptopCode, FaTags, FaClipboardList } from "react-icons/fa";
 import axios from "axios";
 import { Link } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function AllProducts() {
   const [products, setProducts] = useState([]);
@@ -24,13 +25,13 @@ function AllProducts() {
     { key: "ebooks", label: "الكتب الرقمية", icon: <FaBook size={26} /> },
   ];
 
-  const API_URL = "https://bmd-backend-production.up.railway.app/api/products";
-  const CATEGORY_URL = "https://bmd-backend-production.up.railway.app/api/categories"; // must exist
+  const PRODUCTS_URL = `${API_URL}/api/products`;
+  const CATEGORY_URL = `${API_URL}/api/categories`;
 
   // Fetch products
   useEffect(() => {
     axios
-      .get(API_URL)
+      .get(PRODUCTS_URL)
       .then((res) => {
         setProducts(res.data);
         setFiltered(res.data);

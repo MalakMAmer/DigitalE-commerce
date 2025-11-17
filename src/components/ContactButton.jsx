@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaFacebookF, FaTelegramPlane, FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
+import { FaInstagram, FaTelegramPlane, FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
 
 function ContactButton() {
   const [open, setOpen] = useState(false);
@@ -14,7 +14,7 @@ function ContactButton() {
           <>
             {/* WhatsApp */}
             <motion.a
-              href="https://wa.me/0000000000"
+              href="https://web.whatsapp.com/send?phone=9647728231332"
               target="_blank"
               initial={{ opacity: 0, y: 30, scale: 0.7 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -28,7 +28,7 @@ function ContactButton() {
 
             {/* Telegram */}
             <motion.a
-              href="https://t.me/yourusername"
+              href="https://telegram.me/agm_0"
               target="_blank"
               initial={{ opacity: 0, y: 30, scale: 0.7 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -42,16 +42,16 @@ function ContactButton() {
 
             {/* Facebook */}
             <motion.a
-              href="https://facebook.com/yourpage"
+              href="https://www.instagram.com/bmd.iq2/#"
               target="_blank"
               initial={{ opacity: 0, y: 30, scale: 0.7 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 30, scale: 0.7 }}
               transition={{ duration: 0.25 }}
-              className="w-14 h-14 rounded-full bg-[#3089fc] shadow-xl flex items-center justify-center text-white 
+              className="w-14 h-14 rounded-full bg-[#c302e6] shadow-xl flex items-center justify-center text-white 
               transform transition-transform duration-200 hover:scale-110 active:scale-95"
             >
-              <FaFacebookF size={26} />
+              <FaInstagram size={26} />
             </motion.a>
           </>
         )}
