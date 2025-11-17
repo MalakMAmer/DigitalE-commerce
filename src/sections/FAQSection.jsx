@@ -9,7 +9,8 @@ function FAQSection() {
   useEffect(() => {
     const fetchFaq = async () => {
       try {
-        const res = await axios.get("https://your-backend-url/api/faq");
+        const res = axios.get(`${import.meta.env.VITE_API_URL}/api/faq`);
+;
         setFaqData(res.data);
       } catch (err) {
         console.log("Error loading FAQ:", err);
