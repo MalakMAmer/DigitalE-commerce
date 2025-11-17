@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaBook, FaGamepad, FaLaptopCode, FaTags, FaClipboardList } from "react-icons/fa";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function AllProducts() {
   const [products, setProducts] = useState([]);
@@ -106,7 +107,7 @@ function AllProducts() {
             onClick={() => setCategory(cat.key)}
             className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all text-sm font-semibold
               ${category === cat.key
-                ? "bg-purple-700 text-white shadow-md scale-105"
+                ? "bg-[var(--purple-light)] text-white shadow-md scale-105"
                 : "bg-gray-100 text-gray-700 hover:scale-105"}`}
           >
             {cat.icon}
@@ -117,21 +118,43 @@ function AllProducts() {
 
       {/* Price Filter */}
       <div className="max-w-4xl mx-auto mt-6 flex items-center justify-center gap-3">
+
         <input
           type="number"
           placeholder="السعر الأدنى"
           value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-          className="border rounded-lg p-2 w-32 outline-purple-700"
+          min={1}
+          onChange={(e) => {
+            const val = Math.max(1, Number(e.target.value));
+            setMinPrice(val);
+          }}
+          className="border rounded-lg p-2 w-32 outline-[var(--purple-light)]"
         />
+
         <span className="text-gray-600">—</span>
+
         <input
           type="number"
           placeholder="السعر الأقصى"
           value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="border rounded-lg p-2 w-32 outline-purple-700"
+          min={1}
+          onChange={(e) => {
+            const val = Math.max(1, Number(e.target.value));
+            setMaxPrice(val);
+          }}
+          className="border rounded-lg p-2 w-32 outline-[var(--purple-light)]"
         />
+
+        {/* Reset Button */}
+        <button
+          onClick={() => {
+            setMinPrice("");
+            setMaxPrice("");
+          }}
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-all"
+        >
+          إعادة التعيين
+        </button>
       </div>
 
       {/* Products Grid */}
@@ -149,14 +172,24 @@ function AllProducts() {
               />
 
               <h2 className="mt-3 text-lg font-semibold text-gray-900">{p.name}</h2>
-              <p className="text-purple-700 font-bold text-xl mt-1">${p.price}</p>
+
+              {/* Price + Sale */}
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-purple-700 font-bold text-xl">${p.price}</p>
+
+                {p.sale > 0 && (
+                  <span className="text-red-600 font-bold text-sm">
+                    خصم {p.sale}%
+                  </span>
+                )}
+              </div>
 
               {/* Full description */}
               <p className="text-gray-500 text-sm mt-2">
                 {p.description || "لا يوجد وصف متاح"}
               </p>
 
-              <button className="mt-4 w-full py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-all">
+              <button className="mt-4 w-full py-2 bg-[var(--purple-light)] text-white rounded-lg hover:bg-[var(--purple-dark)] transition-all">
                 عرض التفاصيل
               </button>
             </div>
@@ -167,8 +200,19 @@ function AllProducts() {
           </p>
         )}
       </div>
+
+      {/* View All */}
+      <div className="text-center pt-10 lg:pt-16">
+        <Link
+          to="/products"
+          className="inline-block bg-[var(--purple-light)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[var(--purple-dark)] transform hover:scale-105 transition-all"
+        >
+          عرض المزيد
+        </Link>
+      </div>
     </div>
   );
+
 }
 
 export default AllProducts;

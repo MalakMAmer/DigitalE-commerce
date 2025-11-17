@@ -8,17 +8,17 @@ function WhyUs() {
 
   const features = [
     {
-      icon: <Star className="text-purple-700 w-6 h-6" />,
+      icon: <Star className="text-[var(--purple-dark)] w-6 h-6" />,
       title: t('whyus.quality', 'أفضل العروض'),
       text: t('whyus.text1', 'نقدّم أفضل العروض الرقمية والخصومات الموثوقة بأسعار مميزة.'),
     },
     {
-      icon: <Zap className="text-purple-700 w-6 h-6" />,
+      icon: <Zap className="text-[var(--purple-dark)]  w-6 h-6" />,
       title: t('whyus.speed', 'سهولة الاستخدام'),
       text: t('whyus.text2', 'تجربة مريحة وسريعة لشراء المنتجات الرقمية بدون تعقيدات.'),
     },
     {
-      icon: <ShieldCheck className="text-purple-700 w-6 h-6" />,
+      icon: <ShieldCheck className="text-[var(--purple-dark)]  w-6 h-6" />,
       title: t('whyus.security', 'ضمان الأمان'),
       text: t('whyus.text3', 'نضمن لك استلام منتجاتك الرقمية بأمان تام وموثوقية عالية.'),
     },

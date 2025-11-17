@@ -1,11 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { FaReply } from 'react-icons/fa'
 
 function Hero() {
   return (
     <section
       dir="rtl"
-      className="relative flex flex-col justify-center items-center text-center px-6 py-32 min-h-screen overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] via-purple-200 from-purple-500 to-white"
+      className="relative flex flex-col justify-center items-center text-center px-6 py-32 min-h-screen overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] via-[var(--purple-light-trans2)]  from-[var(--purple-light-trans)]  to-white"
     >
       {/* Glowing background spotlight */}
       <div className="absolute inset-0 bg-gradient-radial from-purple-500 via-violet-400 to-transparent opacity-70 blur-3xl"></div>
@@ -36,7 +37,7 @@ function Hero() {
           className="mt-4 inline-flex items-center gap-2 px-8 py-3 text-lg font-medium bg-black text-white rounded-xl shadow-md transition-all hover:bg-gray-900"
         >
           <span>تسوق الآن</span>
-          <span className="text-xl">↩</span>
+          <span className="text-sm px-1"> <FaReply /> </span>
         </motion.a>
       </div>
 

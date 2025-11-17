@@ -5,6 +5,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import bgHero from "../assets/bgHero.jpeg";
+import AllProducts from "../pages/allProducts";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -88,7 +89,7 @@ function DigitalProductsSection() {
         {/* === Newest Offers Slider === */}
         <div className="mb-20" id="offers">
           <div className="text-center mb-10">
-            <motion.h2 className="text-3xl sm:text-4xl font-extrabold text-purple-700 mb-3" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <motion.h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--purple-light)]  mb-3" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               أحدث العروض
             </motion.h2>
             <p className="text-gray-600">عروض مميزة + منتجات مختارة</p>
@@ -106,7 +107,7 @@ function DigitalProductsSection() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.8 }}
-                  className="flex flex-col bg-gradient-to-r from-purple-50 to-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden h-full"
+                  className="flex flex-col bg-gradient-to-r from-white to-[var(--purple-light-trans2)] rounded-md shadow-lg border border-gray-100 overflow-hidden h-full"
                 >
                   <img src={offers[current].image} alt={offers[current].title} className="w-full h-60 object-cover" />
                   <div className="p-6 text-right">
@@ -116,12 +117,12 @@ function DigitalProductsSection() {
                 </motion.div>
               </AnimatePresence>
 
-              <button onClick={prevSlide} className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-purple-700 hover:text-white transition-all" style={{ direction: "ltr" }}>‹</button>
-              <button onClick={nextSlide} className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-purple-700 hover:text-white transition-all" style={{ direction: "ltr" }}>›</button>
+              <button onClick={prevSlide} className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)]   hover:text-white transition-all" style={{ direction: "ltr" }}>‹</button>
+              <button onClick={nextSlide} className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)]  hover:text-white transition-all" style={{ direction: "ltr" }}>›</button>
 
               <div className="flex justify-center mt-4 gap-2">
                 {offers.map((_, index) => (
-                  <button key={index} onClick={() => { setCurrent(index); startTimer(); }} className={`w-3 h-3 rounded-full transition-all ${index === current ? "bg-purple-700" : "bg-gray-300"}`} />
+                  <button key={index} onClick={() => { setCurrent(index); startTimer(); }} className={`w-3 h-3 rounded-full transition-all ${index === current ? "bg-[var(--purple-light)]" : "bg-gray-300"}`} />
                 ))}
               </div>
             </div>
@@ -129,15 +130,15 @@ function DigitalProductsSection() {
             {/* RIGHT ➜ 4 Featured Products */}
             <div className="grid grid-cols-2 gap-4">
               {displayedProducts.slice(0, 4).map((product) => (
-                <motion.div key={product._id} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden relative" data-aos="fade-up">
+                <motion.div key={product._id} className="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-lg transition-all overflow-hidden relative" data-aos="fade-up">
                   <img src={product.images?.[0] || product.image || "https://via.placeholder.com/400"} className="w-full h-32 object-cover" alt={product.title} />
                   <button onClick={() => toggleFavorite(product._id)} className="absolute top-3 right-3 text-xl">
                     {isFavorite(product._id) ? <AiFillHeart className="text-red-500" /> : <AiOutlineHeart className="text-gray-400 hover:text-red-500 transition-colors" />}
                   </button>
                   <div className="p-3 text-right">
                     <h3 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">{product.title}</h3>
-                    <p className="text-purple-700 font-bold text-sm mb-2">{product.price} د.ع</p>
-                    <Link to={`/product/${product._id}`} className="block text-center bg-purple-700 text-white text-sm py-1.5 rounded-xl hover:bg-purple-800 transition-all">عرض التفاصيل</Link>
+                    <p className="text-[var(--purple-light)]  font-bold text-sm mb-2">{product.price} د.ع</p>
+                    <Link to={`/product/${product._id}`} className="block text-center bg-[var(--purple-light)]  text-white text-sm py-1.5 rounded-xl hover:bg-[var(--purple-light-trans)]  transition-all">عرض التفاصيل</Link>
                   </div>
                 </motion.div>
               ))}
@@ -152,16 +153,16 @@ function DigitalProductsSection() {
         </motion.h2>
 
         {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
+        {/* <div className="flex flex-wrap justify-center gap-3 mb-10">
           {categories.map((cat) => (
-            <button key={cat.key} onClick={() => setFilter(cat.key)} className={`px-4 py-2 rounded-full border transition-all duration-300 ${filter === cat.key ? "bg-purple-700 text-white border-purple-700" : "bg-gray-100 text-gray-700 hover:bg-purple-100"}`}>
+            <button key={cat.key} onClick={() => setFilter(cat.key)} className={`px-4 py-2 rounded-full border transition-all duration-300 ${filter === cat.key ? "bg-[var(--purple-light)]  text-white border-purple-700" : "bg-gray-100 text-gray-700 hover:bg-purple-100"}`}>
               {cat.label}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Products Grid */}
-        {displayedProducts.length === 0 ? (
+        {/* {displayedProducts.length === 0 ? (
           <p className="text-center text-gray-500">لا توجد منتجات حالياً.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -179,12 +180,11 @@ function DigitalProductsSection() {
               </motion.div>
             ))}
           </div>
-        )}
+        )} */}
 
-        {/* View All */}
-        <div className="text-center pt-10 lg:pt-16">
-          <Link to="/products" className="inline-block bg-purple-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-800 transform hover:scale-105 transition-all">تصفح باقي المنتجات</Link>
-        </div>
+        <AllProducts />
+
+        
 
       </div>
     </section>

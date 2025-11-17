@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ShoppingCart } from 'lucide-react' // Added ShoppingCart icon
 import logo from '../assets/Logo.png'
+import { FaReply } from "react-icons/fa";
+
+
 
 function Navbar() {
   const { t, i18n } = useTranslation()
@@ -29,7 +32,7 @@ function Navbar() {
           <div className="hidden sm:flex items-center gap-4">
             <Link
               to="/favProduct"
-              className="text-purple-700 hover:text-purple-500 transition-all"
+              className="text-[var(--purple-light)] hover:text-purple-500 transition-all"
             >
               <ShoppingCart size={24} />
             </Link>
@@ -172,8 +175,7 @@ function Navbar() {
                 </ScrollLink>
               </div>
 
-              {/* Bottom Login / Signup / Cart */}
-              <div className="mt-auto flex flex-col gap-4 pt-6 border-t border-gray-200">
+              <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 my-6">
                 <Link
                   to="/login"
                   onClick={() => setIsOpen(false)}
@@ -187,7 +189,7 @@ function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className="inline-flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all"
                 >
-                  <span className="text-sm ">↩</span> {t('nav.signup') || 'تسجيل الدخول'}
+                  <span className="text-sm px-1"> <FaReply /> </span> {t('nav.signup') || 'تسجيل الدخول'}
                 </Link>
 
                 <Link

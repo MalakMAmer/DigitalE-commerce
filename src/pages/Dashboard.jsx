@@ -13,7 +13,9 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("addProduct");
   const [offers, setOffers] = useState([]);
   const [sales, setSales] = useState([]); 
+  const [faqs, setFaqs] = useState([]);
 
+  const [faqForm, setFaqForm] = useState({ question: "", answer: "" });
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -36,11 +38,25 @@ export default function Dashboard() {
       .catch(() => toast.error("فشل تحميل المنتجات"));
     axios.get(`${API_URL}/api/offers`).then((res) => setOffers(res.data));
     axios.get(`${API_URL}/api/sales`).then((res) => setSales(res.data));
+    axios.get(`${API_URL}/api/faq`).then((res) => setFaqs(res.data));
+
   }, []);
 
   // Product handlers
   
 
+  const deleteProduct = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/admin/products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setProducts(products.filter((p) => p._id !== id));
+      toast.success("تم حذف المنتج ✔");
+    } catch {
+      toast.error("فشل حذف المنتج ❌");
+    }
+  };
   const addImageInput = () => {
     if (form.images.length >= 10) {
       toast.error("لا يمكن إضافة أكثر من 10 صور");
@@ -85,12 +101,19 @@ export default function Dashboard() {
   
 
   // OFFER STATE
-  const [offerForm, setOfferForm] = useState({ image: "" });
+  const [offerForm, setOfferForm] = useState({ image: [""] });
+
 
   // HANDLE INPUT CHANGE
-  const updateOfferImage = (value) => {
-    setOfferForm({ image: value });
+  const updateOfferImage = (index, value) => {
+    const arr = [...offerForm.image];
+    arr[index] = value;
+    setOfferForm({ image: arr });
   };
+  const addOfferImageInput = () => {
+    setOfferForm({ image: [...offerForm.image, ""] });
+  };
+
 
   // SUBMIT OFFER
   const handleOfferSubmit = async (e) => {
@@ -159,6 +182,40 @@ export default function Dashboard() {
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error("تعذر حفظ الصور ❌");
+    }
+  };
+
+
+  // ========================= FAQ HANDLERS =============================
+  const handleFaqSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/api/admin/faq`, faqForm, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.success("تمت إضافة السؤال بنجاح ✔");
+
+      const res = await axios.get(`${API_URL}/api/faq`);
+      setFaqs(res.data);
+
+      setFaqForm({ question: "", answer: "" });
+    } catch {
+      toast.error("فشل إضافة السؤال ❌");
+    }
+  };
+
+  const deleteFaq = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/admin/faq/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setFaqs(faqs.filter((f) => f._id !== id));
+
+      toast.success("تم حذف السؤال ✔");
+    } catch {
+      toast.error("فشل حذف السؤال ❌");
     }
   };
 
@@ -259,7 +316,7 @@ export default function Dashboard() {
             </form>
 
             <button
-              onClick={handleSubmit}
+              type="submit"
               className="mt-6 w-full bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800">
               إضافة المنتج
             </button>
@@ -333,7 +390,7 @@ export default function Dashboard() {
         {offers.map((o) => (
           <div key={o._id} className="bg-white shadow rounded-xl overflow-hidden">
             <img
-              src={o.image}
+              src={o.image[0]}
               className="w-full h-56 object-cover border-b"
             />
             <button
@@ -372,6 +429,60 @@ export default function Dashboard() {
         </div>
         </div>
         )}
+
+
+        {activeSection === "addFaq" && (
+        <div className="w-full bg-white p-10 rounded-2xl shadow-xl">
+          <h2 className="text-3xl mb-6 flex items-center gap-2 text-purple-700">
+            ❓ إدارة الأسئلة الشائعة (FAQ)
+          </h2>
+
+          <form onSubmit={handleFaqSubmit} className="flex flex-col gap-4 max-w-lg">
+            <input
+              type="text"
+              placeholder="السؤال"
+              className="p-3 border rounded-lg"
+              value={faqForm.question}
+              onChange={(e) => setFaqForm({ ...faqForm, question: e.target.value })}
+            />
+
+            <textarea
+              placeholder="الإجابة"
+              className="p-3 border rounded-lg h-28"
+              value={faqForm.answer}
+              onChange={(e) => setFaqForm({ ...faqForm, answer: e.target.value })}
+            />
+
+            <button
+              type="submit"
+              className="bg-purple-700 text-white py-3 rounded-lg hover:bg-purple-800"
+            >
+              إضافة السؤال
+            </button>
+          </form>
+
+          {/* FAQ LIST */}
+          <div className="mt-8 flex flex-col gap-4">
+            {faqs.map((f) => (
+              <div
+                key={f._id}
+                className="p-5 bg-gray-50 border rounded-xl shadow flex flex-col gap-2"
+              >
+                <h3 className="text-xl font-semibold text-purple-700">{f.question}</h3>
+                <p className="text-gray-700">{f.answer}</p>
+
+                <button
+                  onClick={() => deleteFaq(f._id)}
+                  className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 mt-2"
+                >
+                  حذف
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       </div>
 
       {/* Sidebar */}
@@ -384,6 +495,14 @@ export default function Dashboard() {
         </button>
         <button onClick={() => setActiveSection("addSales")} className={`p-3 rounded-xl text-lg flex items-center gap-3 transition-all ${activeSection === "addSales" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>
           <Megaphone size={22} /> إضافة إعلان
+        </button>
+        <button
+          onClick={() => setActiveSection("addFaq")}
+          className={`p-3 rounded-xl text-lg flex items-center gap-3 transition-all ${
+            activeSection === "addFaq" ? "bg-white text-purple-700" : "hover:bg-purple-600"
+          }`}
+        >
+          ❓ إدارة الأسئلة الشائعة
         </button>
       </div>
 

@@ -23,9 +23,9 @@ function Home() {
             <DigitalProductsSection />
             <SalesHeader />
             {/* <Team /> */}
-            <SignUpSection />
+            {/* <SignUpSection /> */}
             <FAQSection />
-            <CTA />
+            {/* <CTA /> */}
             <ContactButton />
         </div>
     )
