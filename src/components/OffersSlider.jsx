@@ -10,32 +10,33 @@ function OffersSlider() {
   const [current, setCurrent] = useState(0);
   const timerRef = useRef(null);
 
-  // Fetch offers (or use static if API not available)
   useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        // Example API call if you had offers endpoint
-        // const res = await axios.get(`${API_URL}/api/offers`);
-        // setOffers(Array.isArray(res.data) ? res.data : []);
-
-        // fallback static offers
-        setOffers([
-          { id: 1, title: "خصم 20% على كل المنتجات الرقمية", description: "اغتنم الفرصة واحصل على أفضل المنتجات بسعر مخفض.", image: bgHero },
-          { id: 2, title: "اشتراك سنوي مجاني لأول 50 عميل", description: "كن من أوائل المشتركين واستمتع بالمزايا الحصرية.", image: bgHero },
-          { id: 3, title: "هدايا مجانية عند شراء أي منتج", description: "احصل على منتجات رقمية إضافية مجانية عند كل عملية شراء.", image: bgHero },
-        ]);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchOffers();
+    setOffers([
+      {
+        id: 1,
+        title: "خصم 20% على كل المنتجات الرقمية",
+        description: "اغتنم الفرصة واحصل على أفضل المنتجات بسعر مخفض.",
+        image: bgHero,
+      },
+      {
+        id: 2,
+        title: "اشتراك سنوي مجاني لأول 50 عميل",
+        description: "كن من أوائل المشتركين واستمتع بالمزايا الحصرية.",
+        image: bgHero,
+      },
+      {
+        id: 3,
+        title: "هدايا مجانية عند شراء أي منتج",
+        description: "احصل على منتجات رقمية إضافية مجانية عند كل عملية شراء.",
+        image: bgHero,
+      },
+    ]);
   }, []);
 
   const startTimer = () => {
     clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrent(prev => (prev + 1) % offers.length);
+      setCurrent((prev) => (prev + 1) % offers.length);
     }, 4000);
   };
 
@@ -44,39 +45,93 @@ function OffersSlider() {
     return () => clearInterval(timerRef.current);
   }, [offers]);
 
-  const nextSlide = () => { setCurrent(prev => (prev + 1) % offers.length); startTimer(); };
-  const prevSlide = () => { setCurrent(prev => (prev - 1 + offers.length) % offers.length); startTimer(); };
+  const nextSlide = () => {
+    setCurrent((prev) => (prev + 1) % offers.length);
+    startTimer();
+  };
+
+  const prevSlide = () => {
+    setCurrent((prev) => (prev - 1 + offers.length) % offers.length);
+    startTimer();
+  };
 
   if (!offers.length) return null;
 
   return (
-    <div className="relative overflow-hidden">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={offers[current].id}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col bg-gradient-to-r from-white to-[var(--purple-light-trans2)] rounded-md shadow-lg border border-gray-100 overflow-hidden h-full"
+    <div className="flex justify-center items-start py-10">
+        <div className="mx-auto flex items-center justify-between gap-4">
+
+        {/* Prev Button */}
+        <button
+          onClick={prevSlide}
+          className="w-12 h-12 flex justify-center items-center
+          bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
+          hover:bg-[var(--purple-light-trans)] hover:text-white transition"
         >
-          <img src={offers[current].image} alt={offers[current].title} className="w-full h-60 object-cover" />
-          <div className="p-6 text-right">
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">{offers[current].title}</h3>
-            <p className="text-gray-700">{offers[current].description}</p>
+          ‹
+        </button>
+
+        {/* Slider */}
+        <div className="relative overflow-hidden flex-1">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={offers[current].id}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.4 }}
+              className="rounded-2xl bg-white/80 backdrop-blur-md 
+              shadow-lg border border-purple-300/40 overflow-hidden"
+            >
+              <img
+                src={offers[current].image}
+                alt={offers[current].title}
+                className="w-full h-72 object-cover"
+              />
+
+              <div className="p-6 text-right">
+                <h3 className="text-3xl font-bold text-gray-900">
+                  {offers[current].title}
+                </h3>
+
+                <p className="text-gray-700 mt-2 leading-relaxed text-lg">
+                  {offers[current].description}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Dots */}
+          <div className="flex justify-center mt-5 gap-3">
+            {offers.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setCurrent(index);
+                  startTimer();
+                }}
+                className={`rounded-full transition-all
+                ${index === current
+                  ? "w-4 h-4 bg-purple-600 shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+                  : "w-3 h-3 bg-gray-300"
+                }`}
+              />
+            ))}
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
 
-      <button onClick={prevSlide} className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)] hover:text-white transition-all" style={{ direction: "ltr" }}>‹</button>
-      <button onClick={nextSlide} className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)] hover:text-white transition-all" style={{ direction: "ltr" }}>›</button>
-
-      <div className="flex justify-center mt-4 gap-2">
-        {offers.map((_, index) => (
-          <button key={index} onClick={() => { setCurrent(index); startTimer(); }} className={`w-3 h-3 rounded-full transition-all ${index === current ? "bg-[var(--purple-light)]" : "bg-gray-300"}`} />
-        ))}
+        {/* Next Button */}
+        <button
+          onClick={nextSlide}
+          className="w-12 h-12 flex justify-center items-center
+          bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
+          hover:bg-[var(--purple-light-trans)] hover:text-white transition"
+        >
+          ›
+        </button>
       </div>
     </div>
+    
   );
 }
 

@@ -1,45 +1,69 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Link as ScrollLink } from 'react-scroll'
-import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, ShoppingCart } from 'lucide-react'
-import logo from '../assets/Logo.png'
-import { FaReply } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X, ShoppingCart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../assets/Logo.png';
+import { FaReply } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 function Navbar() {
-  const { t, i18n } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
+  const [isOpen, setIsOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const changeLang = () => i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')
+  // Login state
+  useEffect(() => {
+    const checkLogin = () => setIsLoggedIn(!!localStorage.getItem('token'));
+    checkLogin();
+    window.addEventListener('storage', checkLogin);
+    return () => window.removeEventListener('storage', checkLogin);
+  }, []);
 
-  // Update cart count whenever localStorage changes
+  // Cart state
   useEffect(() => {
     const updateCart = () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-      setCartCount(cart.length)
-    }
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      setCartCount(Array.isArray(cart) ? cart.length : 0);
+    };
+    updateCart();
+    window.addEventListener('storage', updateCart);
+    return () => window.removeEventListener('storage', updateCart);
+  }, []);
 
-    updateCart() // initial load
-
-    window.addEventListener('storage', updateCart)
-    return () => window.removeEventListener('storage', updateCart)
-  }, [])
-
-  // Prevent scroll when sidebar open
+  // Prevent scroll when menu open
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto'
-  }, [isOpen])
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+  }, [isOpen]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsOpen(false);
+    setIsLoggedIn(false);
+    toast.success('تم تسجيل الخروج بنجاح');
+  };
+
+  // Navigation handler: always reload
+  const handleNavClick = (id) => {
+    window.location.href = `/#${id}`;
+  };
+
+  const renderNavButton = (id, label) => (
+    <button
+      onClick={() => handleNavClick(id)}
+      className="hover:text-purple-400 transition-all cursor-pointer"
+    >
+      {label}
+    </button>
+  );
 
   return (
     <>
       <nav className="w-full bg-white/85 backdrop-blur-xl border-b border-gray-200 shadow-sm fixed top-0 left-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between py-1 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between py-2 px-6">
 
           {/* Left: Cart + Login */}
           <div className="hidden sm:flex items-center gap-4">
-            <Link to="/cart" className="relative text-[var(--purple-light)] hover:text-purple-500 transition-all">
+            <Link to="/cart" className="relative text-purple-700 hover:text-purple-500 transition-all">
               <ShoppingCart size={24} />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
@@ -48,31 +72,31 @@ function Navbar() {
               )}
             </Link>
 
-            <Link to="/signup" className="inline-flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all transform hover:scale-105">
-              <span className="text-sm"> <FaReply /> </span> {t('nav.signup') || 'سجل الآن!'}
-            </Link>
-
-            <Link to="/login" className="p-2 text-sm">
-              <span className="text-gray-600 font-medium hover:text-purple-700 cursor-pointer transition-all">
-                لديك حساب؟
-              </span>
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all"
+              >
+                <FaReply /> تسجيل خروج
+              </button>
+            ) : (
+              <>
+                <Link to="/signup" className="flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
+                  <FaReply /> سجل الآن!
+                </Link>
+                <Link to="/login" className="text-gray-600 font-medium hover:text-purple-700 text-sm">
+                  لديك حساب؟
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Center: Menu Links */}
           <div className="hidden md:flex items-center gap-6 text-gray-800 font-medium">
-            <Link to="/" className="cursor-pointer hover:text-purple-400 transition-all">
-              {t('nav.home') || 'الرئيسية'}
-            </Link>
-            <ScrollLink to="offers" smooth={true} duration={50} offset={-80} className="cursor-pointer hover:text-purple-400 transition-all">
-              {t('nav.offers') || 'العروض'}
-            </ScrollLink>
-            <ScrollLink to="digitalProducts" smooth={true} duration={50} offset={-80} className="cursor-pointer hover:text-purple-400 transition-all">
-              {t('nav.products') || 'المتجر'}
-            </ScrollLink>
-            <ScrollLink to="contactUs" smooth={true} duration={50} offset={-80} className="cursor-pointer hover:text-purple-400 transition-all">
-              {t('nav.contact') || 'اتصل بنا'}
-            </ScrollLink>
+            {renderNavButton('home', 'الرئيسية')}
+            {renderNavButton('offers', 'العروض')}
+            {renderNavButton('digitalProducts', 'المتجر')}
+            {renderNavButton('contactUs', 'اتصل بنا')}
           </div>
 
           {/* Logo */}
@@ -98,46 +122,41 @@ function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className="fixed inset-0 bg-black w-screen h-screen z-40"
               />
-
               <motion.div
-                initial={{ x: "100%" }}
+                initial={{ x: '100%' }}
                 animate={{ x: 0 }}
-                exit={{ x: "100%" }}
+                exit={{ x: '100%' }}
                 transition={{ duration: 0.3 }}
                 className="fixed top-0 right-0 h-screen w-72 bg-white z-50 shadow-xl p-6 flex flex-col"
               >
-                <button onClick={() => setIsOpen(false)} className="self-end text-purple-700 mb-6">
-                  <X size={28} />
-                </button>
+                <button onClick={() => setIsOpen(false)} className="self-end text-purple-700 mb-6"><X size={28} /></button>
 
                 <div className="flex flex-col gap-6 text-gray-800 font-medium mt-4">
-                  <Link onClick={() => setIsOpen(false)} to="/" className="hover:text-purple-400 transition-all">
-                    {t('nav.home') || 'الرئيسية'}
-                  </Link>
-                  <ScrollLink onClick={() => setIsOpen(false)} to="offers" smooth={true} duration={50} offset={-80} className="hover:text-purple-400 transition-all">
-                    {t('nav.offers') || 'العروض'}
-                  </ScrollLink>
-                  <ScrollLink onClick={() => setIsOpen(false)} to="digitalProducts" smooth={true} duration={50} offset={-80} className="hover:text-purple-400 transition-all">
-                    {t('nav.products') || 'المتجر'}
-                  </ScrollLink>
-                  <ScrollLink onClick={() => setIsOpen(false)} to="contactUs" smooth={true} duration={50} offset={-80} className="hover:text-purple-400 transition-all">
-                    {t('nav.contact') || 'اتصل بنا'}
-                  </ScrollLink>
+                  {renderNavButton('home', 'الرئيسية')}
+                  {renderNavButton('offers', 'العروض')}
+                  {renderNavButton('digitalProducts', 'المتجر')}
+                  {renderNavButton('contactUs', 'اتصل بنا')}
                 </div>
 
                 <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 my-6">
-                  <Link to="/login" onClick={() => setIsOpen(false)} className="text-gray-600 text-center font-medium hover:text-purple-700 transition-all text-sm">
-                    لديك حساب؟
-                  </Link>
-                  <Link to="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
-                    <span className="text-sm px-1"><FaReply /></span> {t('nav.signup') || 'تسجيل الدخول'}
-                  </Link>
+                  {isLoggedIn ? (
+                    <button onClick={handleLogout} className="flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
+                      <FaReply /> تسجيل خروج
+                    </button>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={() => setIsOpen(false)} className="text-gray-600 text-center font-medium hover:text-purple-700 text-sm">
+                        لديك حساب؟
+                      </Link>
+                      <Link to="/signup" onClick={() => setIsOpen(false)} className="flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
+                        <FaReply /> سجل الآن!
+                      </Link>
+                    </>
+                  )}
                   <Link to="/cart" onClick={() => setIsOpen(false)} className="flex justify-center items-center text-purple-700 hover:text-purple-500 py-2 rounded-md font-semibold bg-purple-100 transition-all relative">
                     <ShoppingCart size={24} />
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                        {cartCount}
-                      </span>
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{cartCount}</span>
                     )}
                   </Link>
                 </div>
@@ -147,9 +166,10 @@ function Navbar() {
         </AnimatePresence>
       </nav>
 
+      {/* Spacer for fixed nav */}
       <div className="h-16 w-full"></div>
     </>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

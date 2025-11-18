@@ -7,7 +7,7 @@ function Footer() {
   return (
     <>
       <footer className="bg-[#300c66] border-t border-purple-200/40 py-10 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between gap-10 text-gray-100">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between gap-10 text-gray-100" id="contactUs">
 
           {/* Logo & Description */}
           <div className="flex-1 flex flex-col items-center md:items-start gap-3 text-center md:text-right">
@@ -30,10 +30,10 @@ function Footer() {
               <Link to="/products" className="relative after:block after:w-0 after:h-[2px] after:bg-purple-300 after:transition-all after:duration-300 hover:after:w-full">
                 المنتجات
               </Link>
-              <Link to="/services" className="relative after:block after:w-0 after:h-[2px] after:bg-purple-300 after:transition-all after:duration-300 hover:after:w-full">
+              <Link to="#" className="relative after:block after:w-0 after:h-[2px] after:bg-purple-300 after:transition-all after:duration-300 hover:after:w-full">
                 الخدمات
               </Link>
-              <Link to="/about" className="relative after:block after:w-0 after:h-[2px] after:bg-purple-300 after:transition-all after:duration-300 hover:after:w-full">
+              <Link to="#" className="relative after:block after:w-0 after:h-[2px] after:bg-purple-300 after:transition-all after:duration-300 hover:after:w-full">
                 حول
               </Link>
             </div>

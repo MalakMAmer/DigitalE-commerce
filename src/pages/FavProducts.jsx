@@ -104,7 +104,9 @@ function FavProducts() {
   return (
     <div className="max-w-6xl mx-auto space-y-6 min-h-screen p-6" dir="rtl">
       <h2 className="text-3xl font-bold text-purple-700 mb-6 text-center">
-        {isLoggedIn ? 'منتجاتك المفضلة' : 'منتجات مفضلة'}
+        {isLoggedIn 
+          ? 'منتجاتك المفضلة' 
+          : 'آخر المنتجات المفضلة (تحتاج تسجيل الدخول للتحديث)'}
       </h2>
 
       {favorites.length === 0 ? (
@@ -161,7 +163,9 @@ function FavProducts() {
 
       {!isLoggedIn && (
         <div className="text-center mt-6">
-          <p className="text-gray-500">🦄 سجّل الدخول لإضافة منتجات إلى المفضلة</p>
+          <p className="text-center text-gray-500 mt-4 text-sm">
+            هذه المنتجات محفوظة مؤقتًا في جهازك. سجّل الدخول لمزامنة المفضلات وعرض التحديثات.
+          </p>
           <Link
             to="/signup"
             className="inline-block bg-purple-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-800 transition-all mt-2"

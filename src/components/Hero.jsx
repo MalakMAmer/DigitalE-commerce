@@ -7,6 +7,7 @@ function Hero() {
     <section
       dir="rtl"
       className="relative flex flex-col justify-center items-center text-center px-6 py-32 min-h-screen overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] via-[var(--purple-light-trans2)]  from-[var(--purple-light-trans)]  to-white"
+      id='home'
     >
       {/* Glowing background spotlight */}
       <div className="absolute inset-0 bg-gradient-radial from-purple-500 via-violet-400 to-transparent opacity-70 blur-3xl"></div>

@@ -11,11 +11,22 @@ import DigitalProductsSection from '../sections/DigitalProductsSection'
 import FAQSection from '../sections/FAQSection'
 import SalesHeader from '../components/SalesHeader'
 import ContactButton from '../components/ContactButton'
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function Home() {
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.scrollTo) {
+        const el = document.getElementById(location.state.scrollTo);
+        if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+        }
+    }, [location]);
+
   return (
         <div>
-            <Hero />
+            <Hero/>
             {/* <About /> */}
             <WhyUs />
             {/* <NewestOffers /> */}

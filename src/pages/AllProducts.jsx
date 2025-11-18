@@ -144,7 +144,7 @@ function AllProducts() {
 
 
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-6 py-8" dir="rtl">
+    <div className="min-h-screen bg-white px-4 sm:px-6 py-8" dir="rtl" id="digitalProducts">
       
       {/* Search Bar */}
       <div className="max-w-4xl mx-auto flex items-center gap-3 bg-gray-100 rounded-xl p-3 shadow-sm">
