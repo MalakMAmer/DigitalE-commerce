@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch, FaBook, FaGamepad, FaLaptopCode, FaTags, FaClipboardList } from "react-icons/fa";
+import {
+  FaSearch,
+  FaBook,
+  FaGamepad,
+  FaLaptopCode,
+  FaTags,
+  FaClipboardList,
+} from "react-icons/fa";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 function AllProducts() {
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
 
@@ -15,7 +25,6 @@ function AllProducts() {
 
   const [dynamicCategories, setDynamicCategories] = useState([]);
 
-  // fallback categories (Arabic)
   const fallbackCategories = [
     { key: "all", label: "الكل", icon: <FaClipboardList size={26} /> },
     { key: "coupons", label: "كوبونات", icon: <FaTags size={26} /> },
@@ -28,7 +37,7 @@ function AllProducts() {
   const PRODUCTS_URL = `${API_URL}/api/products`;
   const CATEGORY_URL = `${API_URL}/api/categories`;
 
-  // Fetch products
+  // Fetch Products
   useEffect(() => {
     axios
       .get(PRODUCTS_URL)
@@ -39,7 +48,7 @@ function AllProducts() {
       .catch((err) => console.log("Error fetching products:", err));
   }, []);
 
-  // Fetch categories from API
+  // Fetch Categories
   useEffect(() => {
     axios
       .get(CATEGORY_URL)
@@ -48,7 +57,7 @@ function AllProducts() {
           const formatted = [
             { key: "all", label: "الكل", icon: <FaClipboardList size={26} /> },
             ...res.data.map((c) => ({
-              key: c.key || c.name || c._id,
+              key: c.key || c._id,
               label: c.name_ar || c.name || "بدون اسم",
               icon: <FaTags size={26} />,
             })),
@@ -58,35 +67,31 @@ function AllProducts() {
           setDynamicCategories(fallbackCategories);
         }
       })
-      .catch(() => {
-        setDynamicCategories(fallbackCategories);
-      });
+      .catch(() => setDynamicCategories(fallbackCategories));
   }, []);
 
+  // Filters
   useEffect(() => {
     let result = [...products];
 
-    // Search
     if (search.trim() !== "") {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    // Category
     if (category !== "all") {
       result = result.filter((p) => p.category === category);
     }
 
-    // Price filtering
-    if (minPrice) result = result.filter((p) => p.price >= Number(minPrice));
-    if (maxPrice) result = result.filter((p) => p.price <= Number(maxPrice));
+    if (minPrice) result = result.filter((p) => Number(p.price) >= Number(minPrice));
+    if (maxPrice) result = result.filter((p) => Number(p.price) <= Number(maxPrice));
 
     setFiltered(result);
   }, [search, category, minPrice, maxPrice, products]);
 
   return (
-    <div className="min-h-screen bg-white px-6 py-8" dir="rtl">
+    <div className="min-h-screen bg-white px-4 sm:px-6 py-8" dir="rtl">
 
       {/* Search Bar */}
       <div className="max-w-4xl mx-auto flex items-center gap-3 bg-gray-100 rounded-xl p-3 shadow-sm">
@@ -106,10 +111,12 @@ function AllProducts() {
           <button
             key={cat.key}
             onClick={() => setCategory(cat.key)}
-            className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all text-sm font-semibold
-              ${category === cat.key
-                ? "bg-[var(--purple-light)] text-white shadow-md scale-105"
-                : "bg-gray-100 text-gray-700 hover:scale-105"}`}
+            className={`flex flex-col items-center gap-1 p-3 rounded-xl text-sm font-semibold transition-all
+              ${
+                category === cat.key
+                  ? "bg-[var(--purple-light)] text-white shadow-md scale-105"
+                  : "bg-gray-100 text-gray-700 hover:scale-105"
+              }`}
           >
             {cat.icon}
             {cat.label}
@@ -117,42 +124,34 @@ function AllProducts() {
         ))}
       </div>
 
-      {/* Price Filter */}
-      <div className="max-w-4xl mx-auto mt-6 flex items-center justify-center gap-3">
-
+      {/* Price Filter – mobile responsive */}
+      <div className="max-w-4xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
         <input
           type="number"
           placeholder="السعر الأدنى"
           value={minPrice}
           min={1}
-          onChange={(e) => {
-            const val = Math.max(1, Number(e.target.value));
-            setMinPrice(val);
-          }}
-          className="border rounded-lg p-2 w-32 outline-[var(--purple-light)]"
+          onChange={(e) => setMinPrice(Math.max(1, Number(e.target.value)))}
+          className="border rounded-lg p-2 w-full sm:w-32 outline-[var(--purple-light)]"
         />
 
-        <span className="text-gray-600">—</span>
+        <span className="text-gray-600 hidden sm:block">—</span>
 
         <input
           type="number"
           placeholder="السعر الأقصى"
           value={maxPrice}
           min={1}
-          onChange={(e) => {
-            const val = Math.max(1, Number(e.target.value));
-            setMaxPrice(val);
-          }}
-          className="border rounded-lg p-2 w-32 outline-[var(--purple-light)]"
+          onChange={(e) => setMaxPrice(Math.max(1, Number(e.target.value)))}
+          className="border rounded-lg p-2 w-full sm:w-32 outline-[var(--purple-light)]"
         />
 
-        {/* Reset Button */}
         <button
           onClick={() => {
             setMinPrice("");
             setMaxPrice("");
           }}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-all"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-all w-full sm:w-auto"
         >
           إعادة التعيين
         </button>
@@ -164,36 +163,62 @@ function AllProducts() {
           filtered.map((p) => (
             <div
               key={p._id}
-              className="bg-white rounded-xl shadow-md border hover:shadow-lg transition-all p-4"
+              onClick={() => navigate(`/product/${p._id}`)}
+              className="bg-white rounded-md shadow-md border hover:shadow-xl hover:scale-[1.01] transition-all cursor-pointer overflow-hidden"
             >
+              {/* FULL-WIDTH IMAGE – NO PADDING */}
               <img
                 src={p.images?.[0] || "https://via.placeholder.com/200"}
                 alt={p.name}
-                className="w-full h-40 object-cover rounded-lg"
+                className="w-full h-48 object-cover"
               />
 
-              <h2 className="mt-3 text-lg font-semibold text-gray-900">{p.name}</h2>
+              {/* CONTENT */}
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-gray-900">{p.name}</h2>
 
-              {/* Price + Sale */}
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-purple-700 font-bold text-xl">${p.price}</p>
+                {/* Price */}
+                <div className="mt-2">
+                  {p.oldPrice && (
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span className="line-through">{p.oldPrice} دينار عراقي</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                        -{p.savings || "—"}
+                      </span>
+                    </div>
+                  )}
 
-                {p.sale > 0 && (
-                  <span className="text-red-600 font-bold text-sm">
-                    خصم {p.sale}%
-                  </span>
-                )}
+                  <p className="text-purple-700 font-bold text-2xl mt-1">
+                    {p.price} دينار عراقي
+                  </p>
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-500 text-sm mt-2 line-clamp-2">
+                  {p.description || "لا يوجد وصف متاح"}
+                </p>
+
+                {/* Add to Cart */}
+                <button
+                  className="mt-4 w-full py-2 bg-[var(--purple-dark)] text-white rounded-lg transition-transform duration-200 hover:scale-105"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  أضف إلى السلة
+                </button>
+
+                {/* Details */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/product/${p._id}`);
+                  }}
+                  className="mt-2 w-full py-2 bg-[var(--purple-light)] text-white rounded-lg transition-all hover:bg-[var(--purple-dark)] hover:scale-105"
+                >
+                  عرض التفاصيل
+                </button>
               </div>
-
-              {/* Full description */}
-              <p className="text-gray-500 text-sm mt-2">
-                {p.description || "لا يوجد وصف متاح"}
-              </p>
-
-              <button className="mt-4 w-full py-2 bg-[var(--purple-light)] text-white rounded-lg hover:bg-[var(--purple-dark)] transition-all">
-                عرض التفاصيل
-              </button>
             </div>
+
           ))
         ) : (
           <p className="text-center col-span-full text-gray-500 text-lg mt-10">
@@ -201,19 +226,8 @@ function AllProducts() {
           </p>
         )}
       </div>
-
-      {/* View All */}
-      <div className="text-center pt-10 lg:pt-16">
-        <Link
-          to="/products"
-          className="inline-block bg-[var(--purple-light)] text-white px-6 py-3 rounded-full font-semibold hover:bg-[var(--purple-dark)] transform hover:scale-105 transition-all"
-        >
-          عرض المزيد
-        </Link>
-      </div>
     </div>
   );
-
 }
 
 export default AllProducts;

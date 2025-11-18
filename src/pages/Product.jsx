@@ -13,13 +13,17 @@ import { FiShield } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const API_URL = import.meta.env.VITE_API_URL;
+import { useNavigate } from "react-router-dom";
+
 
 
 function Product() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const { i18n } = useTranslation();
   const [product, setProduct] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(8); 
 
   useEffect(() => {
     fetch(`${API_URL}/api/products/${id}`)
@@ -56,6 +60,16 @@ function Product() {
 
   const handleAction = (action) => {
     toast.success(`${action} تم بنجاح!`);
+    navigate("/payment", {
+      state: {
+        price: p.price,
+        name: p.name,
+        productId: p._id,
+        image: p.images?.[0],
+        sale: p.sale,
+        description: p.description
+      },
+    })
   };
 
   const thumbnails = useMemo(() => (product ? product.images : []), [product]);

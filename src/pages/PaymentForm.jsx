@@ -4,8 +4,14 @@ import { toast, ToastContainer, Slide } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import emailjs from '@emailjs/browser'
 import { useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom";
 
-function PaymentForm({ cost = 100 }) {
+
+
+
+
+function PaymentForm() {
+  const cost = product.price || 100;
   const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors }, watch, reset, trigger } = useForm()
 
@@ -30,11 +36,20 @@ function PaymentForm({ cost = 100 }) {
       instagram: data.instagram,
       facebook: data.facebook,
       telegram: data.telegram,
+
+      // product data
+      productName: product.name || "",
+      productId: product.productId || "",
+      productDescription: product.description || "",
+      productImage: product.image || "",
+
+      // payment data
       paymentMethod: data.paymentMethod || 'غير محدد',
       fees: `${(totals.fee).toFixed(2)} IQD`,
       cost: `${totals.cost} IQD`,
       total: `${(totals.total).toFixed(2)} IQD`
-    }
+    };
+
 
     try {
       await emailjs.send(
@@ -81,10 +96,38 @@ function PaymentForm({ cost = 100 }) {
   const selectedMethod = watch("paymentMethod")
   const totals = calculateTotal(selectedMethod)
 
+
+  const location = useLocation();
+  const product = location.state || {};
+
+
   return (
     <div className='flex justify-center items-start pt-20 min-h-screen bg-gray-50 pb-10'>
       <div className="w-full max-w-3xl p-8 sm:p-12 bg-white shadow-lg rounded-xl text-gray-800 m-4">
         <h2 className="text-3xl font-bold text-purple-700 mb-8 text-center">نموذج الدفع</h2>
+
+        <div className="mb-6 p-4 bg-purple-50 rounded-lg shadow-sm">
+          <h3 className="text-xl font-bold text-purple-700 mb-3">
+            المنتج المختار: {product.name}
+          </h3>
+
+          {product.image && (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-40 h-40 rounded-lg object-cover mb-3"
+            />
+          )}
+
+          <p className="text-gray-700">
+            السعر: <span className="font-bold">{cost} IQD</span>
+          </p>
+
+          {product.sale > 0 && (
+            <p className="text-red-600 font-bold">خصم {product.sale}%</p>
+          )}
+        </div>
+
 
         <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col gap-6">
 

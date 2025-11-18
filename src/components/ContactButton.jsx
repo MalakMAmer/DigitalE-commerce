@@ -74,7 +74,7 @@ function ContactButton() {
           ease: "easeInOut",
         }}
         whileTap={{ scale: 0.9 }}
-        className="w-16 h-16 rounded-full bg-[var(--purple-light)] hover:bg-[var(--purple-light-trans)] text-white shadow-2xl flex items-center justify-center transition-all relative"
+        className="w-16 h-16 rounded-full bg-[var(--purple-light)] text-white shadow-2xl flex items-center justify-center transition-all relative"
       >
         {open ? (
           <span className="text-3xl font-bold">×</span>

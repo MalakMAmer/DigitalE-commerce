@@ -3,19 +3,70 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import bgHero from "../assets/bgHero.jpeg";
 import AllProducts from "../pages/AllProducts";
-const API_URL = import.meta.env.VITE_API_URL;
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { 
+  AiOutlineEye, 
+  AiOutlineShoppingCart, 
+  AiOutlineTag, 
+  AiOutlineStar 
+} from "react-icons/ai";
 
+
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function DigitalProductsSection() {
   const [filter, setFilter] = useState("all");
   const [products, setProducts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [current, setCurrent] = useState(0);
+  const token = localStorage.getItem("token");
   const timerRef = useRef(null);
 
+  // Fetch favorites only if logged in
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!token) return;
+
+      try {
+        const response = await axios.get(`${API_URL}/api/user/favorites`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavorites(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFavorites();
+  }, [token]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/products`);
+        let items = Array.isArray(res.data) ? res.data : [];
+
+        // Sort by createdAt (newest first)
+        items = items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Store products and pick the newest 4
+        setProducts(items.slice(0, 4));
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+
+  // Slider offers
   const offers = [
     { id: 1, title: "خصم 20% على كل المنتجات الرقمية", description: "اغتنم الفرصة واحصل على أفضل المنتجات بسعر مخفض.", image: bgHero },
     { id: 2, title: "اشتراك سنوي مجاني لأول 50 عميل", description: "كن من أوائل المشتركين واستمتع بالمزايا الحصرية.", image: bgHero },
@@ -25,7 +76,7 @@ function DigitalProductsSection() {
   const startTimer = () => {
     clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % offers.length);
+      setCurrent(prev => (prev + 1) % offers.length);
     }, 4000);
   };
 
@@ -35,70 +86,54 @@ function DigitalProductsSection() {
     return () => clearInterval(timerRef.current);
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/products/`)
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Error loading products:", err));
-  }, []);
+  const isFavorite = productId => favorites.some(fav => fav._id === productId);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch(`${API_URL}/api/user/favorites`, { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => res.json())
-        .then((data) => setFavorites(data))
-        .catch((err) => console.error(err));
+  const toggleFavorite = async productId => {
+    if (!token) {
+      toast.warning("يجب تسجيل الدخول أولاً لإضافة المنتج للمفضلة");
+      return;
     }
-  }, []);
-
-  const toggleFavorite = async (productId) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("يجب تسجيل الدخول أولاً");
 
     try {
-      const res = await fetch(`${API_URL}/api/user/favorites/${productId}`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      setFavorites(data.favorites);
+      const res = await axios.post(`${API_URL}/api/user/favorites/${productId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFavorites(Array.isArray(res.data) ? res.data : []);
+      toast.success("تمت إضافة/إزالة المنتج من المفضلة");
     } catch (err) {
       console.error(err);
+      toast.error("حدث خطأ، حاول مرة أخرى");
     }
   };
 
-  const isFavorite = (productId) => favorites.includes(productId);
+  // Products filtering
+  const filteredProducts = filter === "all" ? products : products.filter(p => p.category === filter);
+  const displayedProducts = products;
 
-  const categories = [
-    { key: "all", label: "الكل" },
-    { key: "coupons", label: "كوبونات" },
-    { key: "subscriptions", label: "الاشتراكات" },
-    { key: "software", label: "البرامج" },
-    { key: "gaming", label: "الألعاب" },
-    { key: "ebooks", label: "الكتب الرقمية" },
-  ];
-
-  const filteredProducts = filter === "all" ? products : products.filter((p) => p.category === filter);
-  const displayedProducts = filteredProducts.slice(0, 10);
-
-  const nextSlide = () => { setCurrent((prev) => (prev + 1) % offers.length); startTimer(); };
-  const prevSlide = () => { setCurrent((prev) => (prev - 1 + offers.length) % offers.length); startTimer(); };
+  const nextSlide = () => { setCurrent(prev => (prev + 1) % offers.length); startTimer(); };
+  const prevSlide = () => { setCurrent(prev => (prev - 1 + offers.length) % offers.length); startTimer(); };
 
   return (
     <section className="py-20 px-6 bg-white" dir="rtl">
+      <ToastContainer />
       <div className="max-w-6xl mx-auto">
 
-        {/* === Newest Offers Slider === */}
+        {/* === Offers Slider === */}
         <div className="mb-20" id="offers">
           <div className="text-center mb-10">
-            <motion.h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--purple-light)]  mb-3" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <motion.h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--purple-light)]  mb-3"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               أحدث العروض
             </motion.h2>
             <p className="text-gray-600">عروض مميزة + منتجات مختارة</p>
           </div>
 
-          {/* Slider LEFT + 4 products RIGHT */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            {/* LEFT ➜ Slider */}
+            {/* Slider */}
             <div className="relative overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -117,8 +152,8 @@ function DigitalProductsSection() {
                 </motion.div>
               </AnimatePresence>
 
-              <button onClick={prevSlide} className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)]   hover:text-white transition-all" style={{ direction: "ltr" }}>‹</button>
-              <button onClick={nextSlide} className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)]  hover:text-white transition-all" style={{ direction: "ltr" }}>›</button>
+              <button onClick={prevSlide} className="absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)] hover:text-white transition-all" style={{ direction: "ltr" }}>‹</button>
+              <button onClick={nextSlide} className="absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-[var(--purple-light)] hover:text-white transition-all" style={{ direction: "ltr" }}>›</button>
 
               <div className="flex justify-center mt-4 gap-2">
                 {offers.map((_, index) => (
@@ -127,64 +162,81 @@ function DigitalProductsSection() {
               </div>
             </div>
 
-            {/* RIGHT ➜ 4 Featured Products */}
             <div className="grid grid-cols-2 gap-4">
-              {displayedProducts.slice(0, 4).map((product) => (
-                <motion.div key={product._id} className="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-lg transition-all overflow-hidden relative" data-aos="fade-up">
-                  <img src={product.images?.[0] || product.image || "https://via.placeholder.com/400"} className="w-full h-32 object-cover" alt={product.title} />
-                  <button onClick={() => toggleFavorite(product._id)} className="absolute top-3 right-3 text-xl">
-                    {isFavorite(product._id) ? <AiFillHeart className="text-red-500" /> : <AiOutlineHeart className="text-gray-400 hover:text-red-500 transition-colors" />}
-                  </button>
+              {displayedProducts.slice(0, 4).map(product => (
+                <motion.div
+                  key={product._id}
+                  className="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-lg transition-all overflow-hidden relative"
+                  data-aos="fade-up"
+                >
+
+                  {/* NEW — Stamp Badge with Icon */}
+                  <span
+                    className="absolute top-2 left-2 bg-green-600 text-white font-extrabold 
+                              text-xs md:text-sm px-3 py-1 rounded-sm shadow-md 
+                              border-2 border-white rotate-[-2deg] select-none flex items-center gap-1"
+                  >
+                    <AiOutlineStar className="text-white text-sm" />
+                    جديد
+                  </span>
+
+                  {/* Image */}
+                  <img
+                    src={product.images?.[0] || product.image || 'https://via.placeholder.com/400'}
+                    className="w-full h-32 object-cover"
+                    alt={product.title}
+                  />
+
                   <div className="p-3 text-right">
-                    <h3 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">{product.title}</h3>
-                    <p className="text-[var(--purple-light)]  font-bold text-sm mb-2">{product.price} د.ع</p>
-                    <Link to={`/product/${product._id}`} className="block text-center bg-[var(--purple-light)]  text-white text-sm py-1.5 rounded-xl hover:bg-[var(--purple-light-trans)]  transition-all">عرض التفاصيل</Link>
+
+                    {/* Title + Tag Icon */}
+                    <div className="flex items-center justify-end gap-1 mb-1">
+                      
+                      <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
+                        {product.title}<AiOutlineTag className="text-purple-600 text-sm" />
+                      </h3>
+                    </div>
+
+                    {/* PRICE */}
+                    <p className="text-[var(--purple-light)] font-bold text-sm mb-2">
+                      {product.price} د.ع
+                    </p>
+
+
+                    {/* Add to Cart button */}
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="w-full flex justify-center items-center bg-purple-600 text-white text-sm py-1.5 rounded-xl mb-2 hover:bg-purple-700 transition-all"
+                    >
+                       <AiOutlineShoppingCart title="إضافة للسلة" className="cursor-pointer text-white m-1" />
+                      إضافة إلى السلة 
+                    </button>
+
+                    <Link
+                      to={`/product/${product._id}`}
+                      className="block text-center bg-[var(--purple-light)] text-white text-sm py-1.5 rounded-xl hover:bg-[var(--purple-light-trans)] transition-all"
+                    >
+                      عرض التفاصيل
+                    </Link>
                   </div>
                 </motion.div>
               ))}
             </div>
 
+
+
           </div>
         </div>
 
-        {/* === Product Section === */}
-        <motion.h2 className="text-3xl font-extrabold text-center text-purple-700 mb-10"  id="digitalProducts" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.h2 className="text-3xl font-extrabold text-center text-purple-700 mb-10" id="digitalProducts"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           منتجات رقمية بأسعار مميزة
         </motion.h2>
 
-        {/* Filters */}
-        {/* <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {categories.map((cat) => (
-            <button key={cat.key} onClick={() => setFilter(cat.key)} className={`px-4 py-2 rounded-full border transition-all duration-300 ${filter === cat.key ? "bg-[var(--purple-light)]  text-white border-purple-700" : "bg-gray-100 text-gray-700 hover:bg-purple-100"}`}>
-              {cat.label}
-            </button>
-          ))}
-        </div> */}
-
-        {/* Products Grid */}
-        {/* {displayedProducts.length === 0 ? (
-          <p className="text-center text-gray-500">لا توجد منتجات حالياً.</p>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {displayedProducts.map((product) => (
-              <motion.div key={product._id} data-aos="fade-up" className="relative bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all">
-                <img src={product.images?.[0] || product.image || "https://via.placeholder.com/400"} alt={product.title} className="w-full h-40 object-cover" />
-                <button onClick={() => toggleFavorite(product._id)} className="absolute top-3 right-3 text-2xl">
-                  {isFavorite(product._id) ? <AiFillHeart className="text-red-500" /> : <AiOutlineHeart className="text-gray-400 hover:text-red-500 transition-colors" />}
-                </button>
-                <div className="p-4 text-right">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2">{product.title}</h3>
-                  <p className="text-purple-700 font-semibold mb-3">{product.price} د.ع</p>
-                  <Link to={`/product/${product._id}`} className="block w-full text-center bg-purple-700 text-white py-2 rounded-xl font-medium hover:bg-purple-800 transition-all">عرض التفاصيل</Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )} */}
-
         <AllProducts />
-
-        
 
       </div>
     </section>
