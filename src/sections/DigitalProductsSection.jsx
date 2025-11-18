@@ -5,27 +5,78 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AiOutlineShoppingCart, AiOutlineTag, AiOutlineStar } from "react-icons/ai";
-import OffersSlider from "../components/OffersSlider"; // Import slider
+import OffersSlider from "../components/OffersSlider";
 import AllProducts from "../pages/AllProducts";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function DigitalProductsSection() {
   const [products, setProducts] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
 
-  const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const exists = cart.find(item => item._id === product._id);
+  // Fetch user's favorites
+  useEffect(() => {
+    const fetchProductsAndFavorites = async () => {
+      try {
+        // Fetch all products
+        const productsRes = await axios.get(`${API_URL}/api/products`);
+        let allProducts = Array.isArray(productsRes.data) ? productsRes.data : [];
+        allProducts = allProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setProducts(allProducts.slice(0, 4));
 
-    if (!exists) {
-      cart.push(product);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      toast.success("تمت إضافة المنتج إلى السلة");
-    } else {
-      toast.info("المنتج موجود بالفعل في السلة");
+        if (isLoggedIn) {
+          // Fetch favorites
+          const favRes = await axios.get(`${API_URL}/api/user/favorites`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          // Filter out any favorites that no longer exist
+          const existingFavs = Array.isArray(favRes.data) ? favRes.data.map(p => p._id) : [];
+          const validFavs = existingFavs.filter(favId => allProducts.some(p => p._id === favId));
+
+          setFavorites(validFavs);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProductsAndFavorites();
+  }, [isLoggedIn, token]);
+
+  const addToCart = async (product) => {
+    if (!isLoggedIn) {
+      // Visitors: just local cart
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const isInCart = cart.some(p => p._id === product._id);
+
+      if (!isInCart) {
+        cart.push(product);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        toast.success("تمت إضافة المنتج إلى السلة");
+      } else {
+        toast.info("المنتج موجود بالفعل في السلة");
+      }
+      return;
     }
 
-    window.dispatchEvent(new Event("storage"));
+    // Logged-in users: use favorites route as cart/fav
+    try {
+      const res = await axios.post(`${API_URL}/api/user/favorites/${product._id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const updatedFavs = res.data.favorites;
+      setFavorites(updatedFavs);
+      const isNowFav = updatedFavs.includes(product._id);
+
+      toast.success(isNowFav ? "تمت إضافة المنتج إلى السلة" : "تمت إزالة المنتج من السلة");
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل تحديث السلة");
+    }
   };
 
   useEffect(() => {
@@ -48,7 +99,7 @@ function DigitalProductsSection() {
       <ToastContainer />
       <div className="max-w-6xl mx-auto">
 
-        {/* === Offers Slider === */}
+        {/* Offers Slider */}
         <div className="mb-20" id="offers">
           <div className="text-center mb-10">
             <motion.h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--purple-light)] mb-3"
@@ -64,44 +115,48 @@ function DigitalProductsSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <OffersSlider />
 
-            {/* Products Grid */}
             <div className="grid grid-cols-2 gap-4">
-              {products.map(product => (
-                <div key={product._id} className="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-lg transition-all overflow-hidden relative">
-                  <span className="absolute top-2 left-2 bg-green-600 text-white font-extrabold text-xs md:text-sm px-3 py-1 rounded-sm shadow-md border-2 border-white rotate-[-2deg] select-none flex items-center gap-1">
-                    <AiOutlineStar className="text-white text-sm" />
-                    جديد
-                  </span>
+              {products.map(product => {
+                const isInFavorites = favorites.includes(product._id);
 
-                  <img src={product.images?.[0] || product.image || 'https://via.placeholder.com/400'} className="w-full h-32 object-cover" alt={product.name} />
+                return (
+                  <div key={product._id} className="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-lg transition-all overflow-hidden relative">
+                    <span className="absolute top-2 left-2 bg-green-600 text-white font-extrabold text-xs md:text-sm px-3 py-1 rounded-sm shadow-md border-2 border-white rotate-[-2deg] select-none flex items-center gap-1">
+                      <AiOutlineStar className="text-white text-sm" />
+                      جديد
+                    </span>
 
-                  <div className="p-3 text-right">
-                    <div className="flex items-center gap-1 mb-1">
-                      <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 flex gap-1 items-center">
-                        <AiOutlineTag className="text-purple-600 text-sm" />
-                        {product.name}
-                      </h3>
+                    <img src={product.images?.[0] || product.image || 'https://via.placeholder.com/400'} className="w-full h-32 object-cover" alt={product.name} />
+
+                    <div className="p-3 text-right">
+                      <div className="flex items-center gap-1 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 flex gap-1 items-center">
+                          <AiOutlineTag className="text-purple-600 text-sm" />
+                          {product.name}
+                        </h3>
+                      </div>
+
+                      <p className="text-[var(--purple-light)] font-bold text-sm mb-2">{product.price} د.ع</p>
+
+                      <button
+                        onClick={() => addToCart(product)}
+                        className={`w-full flex justify-center items-center text-sm py-1.5 rounded-xl mb-2 transition-all
+                          ${isInFavorites ? "bg-purple-600 text-white hover:bg-purple-700" : "bg-green-600 text-white"}`}
+                      >
+                        <AiOutlineShoppingCart title="إضافة للسلة" className="cursor-pointer text-white m-1" />
+                        {isInFavorites ? "تمت الإضافة" : "إضافة إلى السلة"}
+                      </button>
+
+                      <Link
+                        to={`/product/${product._id}`}
+                        className="block text-center bg-[var(--purple-light)] text-white text-sm py-1.5 rounded-xl hover:bg-[var(--purple-light-trans)] transition-all"
+                      >
+                        عرض التفاصيل
+                      </Link>
                     </div>
-
-                    <p className="text-[var(--purple-light)] font-bold text-sm mb-2">{product.price} د.ع</p>
-
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="w-full flex justify-center items-center bg-purple-600 text-white text-sm py-1.5 rounded-xl mb-2 hover:bg-purple-700 transition-all"
-                    >
-                      <AiOutlineShoppingCart title="إضافة للسلة" className="cursor-pointer text-white m-1" />
-                      إضافة إلى السلة
-                    </button>
-
-                    <Link
-                      to={`/product/${product._id}`}
-                      className="block text-center bg-[var(--purple-light)] text-white text-sm py-1.5 rounded-xl hover:bg-[var(--purple-light-trans)] transition-all"
-                    >
-                      عرض التفاصيل
-                    </Link>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

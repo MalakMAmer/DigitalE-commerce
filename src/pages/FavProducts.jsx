@@ -1,215 +1,179 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Link as ScrollLink } from 'react-scroll'
-import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, ShoppingCart } from 'lucide-react'
-import logo from '../assets/Logo.png'
-import { FaReply } from "react-icons/fa";
+import { motion } from 'framer-motion'
+import { toast, ToastContainer, Slide } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import axios from "axios"
+import { AiOutlineShoppingCart, AiOutlineDelete } from 'react-icons/ai'
+import Lottie from 'lottie-react'
+import loadingAnimation from '../assets/loading.json'
 
-function Navbar() {
-  const { t, i18n } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
+const API_URL = import.meta.env.VITE_API_URL
 
-  const changeLang = () => i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')
+function FavProducts() {
+  const [favorites, setFavorites] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [cart, setCart] = useState([])
+  const token = localStorage.getItem("token")
+  const isLoggedIn = !!token
 
-  // Update cart count whenever localStorage changes
+  // Fetch favorites
   useEffect(() => {
-    const updateCart = () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-      setCartCount(cart.length)
+    const fetchFavorites = async () => {
+      try {
+        let favs = []
+        if (isLoggedIn) {
+          const res = await axios.get(`${API_URL}/api/user/favorites`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          favs = Array.isArray(res.data) ? res.data : []
+        } else {
+          const localFavs = JSON.parse(localStorage.getItem("favorites") || "[]")
+          favs = Array.isArray(localFavs) ? localFavs : []
+        }
+        setFavorites(favs)
+
+        const localCart = JSON.parse(localStorage.getItem("cart") || "[]")
+        setCart(Array.isArray(localCart) ? localCart : [])
+      } catch (err) {
+        console.error(err)
+        toast.error('❌ فشل تحميل المنتجات', {
+          position: "top-right",
+          autoClose: 5000,
+          transition: Slide,
+        })
+      } finally {
+        setLoading(false)
+      }
     }
 
-    updateCart() // initial load
+    fetchFavorites()
+  }, [isLoggedIn, token])
 
-    // Optional: Listen for storage events if multiple tabs
-    window.addEventListener('storage', updateCart)
-    return () => window.removeEventListener('storage', updateCart)
-  }, [])
+    
 
+  // Handle storage changes (for localStorage sync)
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto'
-  }, [isOpen])
+    const handleStorageChange = () => {
+      const localFavs = JSON.parse(localStorage.getItem("favorites") || "[]")
+      setFavorites(Array.isArray(localFavs) ? localFavs : [])
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+      return () => window.removeEventListener("storage", handleStorageChange)
+    }, [])
+
+    const removeFavorite = async (id) => {
+      try {
+        if (isLoggedIn) {
+          const res = await axios.post(`${API_URL}/api/user/favorites/${id}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          setFavorites(res.data.favorites)
+          toast.info('تم إزالة المنتج من المفضلة', { autoClose: 2000 })
+        } else {
+          const updated = favorites.filter(p => p._id !== id)
+          setFavorites(updated)
+          localStorage.setItem("favorites", JSON.stringify(updated))
+          toast.info('تم إزالة المنتج من المفضلة', { autoClose: 2000 })
+        }
+      } catch (err) {
+        console.error(err)
+        toast.error('فشل إزالة المنتج', { autoClose: 2000 })
+      }
+  }
+
+  const addToCart = (product) => {
+    const exists = cart.find(p => p._id === product._id)
+    if (!exists) {
+      const updatedCart = [...cart, product]
+      setCart(updatedCart)
+      localStorage.setItem("cart", JSON.stringify(updatedCart))
+      toast.success('تمت إضافة المنتج إلى السلة', { position: 'top-right', autoClose: 2000 })
+    } else {
+      toast.info('المنتج موجود بالفعل في السلة', { position: 'top-right', autoClose: 2000 })
+    }
+  }
+
+  if (loading) return (
+    <div className="max-w-6xl min-h-screen mx-auto p-4 flex items-center justify-center">
+      <Lottie animationData={loadingAnimation} loop autoplay style={{ height: 250, width: 250 }} />
+    </div>
+  )
 
   return (
-    <>
-      <nav className="w-full bg-white/85 backdrop-blur-xl border-b border-gray-200 shadow-sm fixed top-0 left-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between py-1 px-6">
+    <div className="max-w-6xl mx-auto space-y-6 min-h-screen p-6" dir="rtl">
+      <h2 className="text-3xl font-bold text-purple-700 mb-6 text-center">
+        {isLoggedIn ? 'منتجاتك المفضلة' : 'منتجات مفضلة'}
+      </h2>
 
-          {/* Left: Cart + Login */}
-          <div className="hidden sm:flex items-center gap-4">
-            <Link
-              to="/cart"
-              className="relative text-[var(--purple-light)] hover:text-purple-500 transition-all"
-            >
-              <ShoppingCart size={24} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all transform hover:scale-105"
-            >
-              <span className="text-sm"> <FaReply /> </span> {t('nav.signup') || 'سجل الآن!'}
-            </Link>
-
-            <Link
-              to="/login"
-              className="p-2 text-sm"
-            >
-              <span className="text-gray-600 font-medium hover:text-purple-700 cursor-pointer transition-all">
-                لديك حساب؟
-              </span>
-            </Link>
-          </div>
-
-          {/* Center: Menu Links */}
-          <div className="hidden md:flex items-center gap-6 text-gray-800 font-medium">
-            <Link to="/" className="cursor-pointer hover:text-purple-400 transition-all">
-              {t('nav.home') || 'الرئيسية'}
-            </Link>
-            <ScrollLink
-              to="offers"
-              smooth={true}
-              duration={50}   
-              offset={-80}
-              className="cursor-pointer hover:text-purple-400 transition-all"
-            >
-              {t('nav.offers') || 'العروض'}
-            </ScrollLink>
-            <ScrollLink
-              to="digitalProducts"
-              smooth={true}
-              duration={50}  
-              offset={-80}
-              className="cursor-pointer hover:text-purple-400 transition-all"
-            >
-              {t('nav.products') || 'المتجر'}
-            </ScrollLink>
-            <ScrollLink
-              to="contactUs"
-              smooth={true}
-              duration={50}     
-              offset={-80}
-              className="cursor-pointer hover:text-purple-400 transition-all"
-            >
-              {t('nav.contact') || 'اتصل بنا'}
-            </ScrollLink>
-          </div>
-
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="BMD Logo" className="w-20 p-2 h-auto" />
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden text-purple-700"
-            onClick={() => setIsOpen(true)}
-            aria-label="menu"
-          >
-            <Menu size={28} />
-          </button>
-        </div>
-
-        {/* Mobile Sidebar */}
-        <AnimatePresence>
-          {isOpen && (
-            <>
+      {favorites.length === 0 ? (
+        <div className="text-center text-gray-500 text-lg py-20">لا توجد منتجات مفضلة بعد.</div>
+      ) : (
+        <div className="grid gap-4 md:gap-6">
+          {favorites.map(product => {
+            const inCart = cart.some(p => p._id === product._id)
+            return (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black w-screen h-screen z-40 pointer-events-auto"
-              />
-              <motion.div
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ duration: 0.3 }}
-                className="fixed top-0 right-0 h-screen w-72 bg-white z-50 shadow-xl p-6 flex flex-col"
+                key={product._id}
+                className="bg-white shadow-md rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                <button onClick={() => setIsOpen(false)} className="self-end text-purple-700 mb-6">
-                  <X size={28} />
-                </button>
-                <div className="flex flex-col gap-6 text-gray-800 font-medium mt-4">
-                  <Link onClick={() => setIsOpen(false)} to="/" className="hover:text-purple-400 transition-all">
-                    {t('nav.home') || 'الرئيسية'}
-                  </Link>
-                  <ScrollLink
-                    onClick={() => setIsOpen(false)}
-                    to="offers"
-                    smooth={true}
-                    duration={50}
-                    offset={-80}
-                    className="hover:text-purple-400 transition-all"
-                  >
-                    {t('nav.offers') || 'العروض'}
-                  </ScrollLink>
-                  <ScrollLink
-                    onClick={() => setIsOpen(false)}
-                    to="digitalProducts"
-                    smooth={true}
-                    duration={50}
-                    offset={-80}
-                    className="hover:text-purple-400 transition-all"
-                  >
-                    {t('nav.products') || 'المتجر'}
-                  </ScrollLink>
-                  <ScrollLink
-                    onClick={() => setIsOpen(false)}
-                    to="contactUs"
-                    smooth={true}
-                    duration={50}
-                    offset={-80}
-                    className="hover:text-purple-400 transition-all"
-                  >
-                    {t('nav.contact') || 'اتصل بنا'}
-                  </ScrollLink>
+                <img
+                  src={product.images?.[0] || product.image || 'https://via.placeholder.com/150x150?text=لا+يوجد+صورة'}
+                  alt={product.name}
+                  className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-lg"
+                />
+                <div className="flex-1 text-right mx-4">
+                  <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">{product.name}</h3>
+                  <p className="text-gray-600 font-bold mt-1">{product.price} د.ع</p>
                 </div>
-                <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 my-6">
-                  <Link
-                    to="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-600 text-center font-medium hover:text-purple-700 transition-all text-sm"
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="flex items-center justify-center gap-1 bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-all w-full sm:w-auto"
                   >
-                    لديك حساب؟
-                  </Link>
+                    <AiOutlineShoppingCart />
+                    {inCart ? 'في السلة' : 'أضف إلى السلة'}
+                  </button>
+
                   <Link
-                    to="/signup"
-                    onClick={() => setIsOpen(false)}
-                    className="inline-flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all"
+                    to={`/product/${product._id}`}
+                    className="inline-block border border-purple-200 bg-purple-100 text-purple-500 px-4 py-2 rounded-xl font-semibold hover:bg-purple-200 transition-all text-center w-full sm:w-auto"
                   >
-                    <span className="text-sm px-1"> <FaReply /> </span> {t('nav.signup') || 'تسجيل الدخول'}
+                    عرض المنتج
                   </Link>
-                  <Link
-                    to="/cart"
-                    onClick={() => setIsOpen(false)}
-                    className="flex justify-center items-center text-purple-700 hover:text-purple-500 py-2 rounded-md font-semibold bg-purple-100 transition-all relative"
+
+                  <button
+                    onClick={() => removeFavorite(product._id)}
+                    className="flex items-center justify-center gap-1 bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-all w-full sm:w-auto"
                   >
-                    <ShoppingCart size={24} />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Link>
+                    <AiOutlineDelete />
+                    إزالة
+                  </button>
                 </div>
               </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </nav>
-      <div className="h-16 w-full"></div>
-    </>
+            )
+          })}
+        </div>
+      )}
+
+      {!isLoggedIn && (
+        <div className="text-center mt-6">
+          <p className="text-gray-500">🦄 سجّل الدخول لإضافة منتجات إلى المفضلة</p>
+          <Link
+            to="/signup"
+            className="inline-block bg-purple-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-800 transition-all mt-2"
+          >
+            إنشاء حساب
+          </Link>
+        </div>
+      )}
+
+      <ToastContainer transition={Slide} />
+    </div>
   )
 }
 
-export default Navbar
+export default FavProducts

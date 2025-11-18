@@ -13,6 +13,8 @@ import {
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Lottie from 'lottie-react'
+import loadingAnimation from '../assets/loading.json'
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,7 +23,7 @@ function AllProducts() {
 
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [minPrice, setMinPrice] = useState("");
@@ -49,7 +51,8 @@ function AllProducts() {
         setProducts(res.data);
         setFiltered(res.data);
       })
-      .catch((err) => console.log("Error fetching products:", err));
+      .catch((err) => console.log("Error fetching products:", err))
+      .finally(() => setLoading(false)); // ✅ set loading false
   }, []);
 
   // Fetch Categories
@@ -127,6 +130,16 @@ function AllProducts() {
     setProducts([...products]); // trigger re-render
   };
 
+  if (loading) return (
+    <div className="max-w-6xl min-h-screen mx-auto p-4 text-center flex items-center justify-center">
+      <Lottie
+        animationData={loadingAnimation}
+        loop
+        autoplay
+        style={{ height: 250, width: 250 }}
+      />
+    </div>
+  )
 
 
 
