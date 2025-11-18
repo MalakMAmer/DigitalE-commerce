@@ -173,7 +173,7 @@ function Product() {
             <button
               onClick={toggleFavoriteAndCart}
               className={`flex-1 px-3 py-2 ${
-                inCart ? "bg-green-600 hover:bg-green-700" : "bg-green-500 hover:bg-green-600"
+                inCart ? "bg-gray-600 hover:bg-gray-700" : "bg-green-500 hover:bg-green-600"
               } text-white rounded flex items-center justify-center gap-2 transition`}
             >
               <AiOutlineShoppingCart /> {inCart ? "إزالة من السلة" : "إضافة إلى السلة"}

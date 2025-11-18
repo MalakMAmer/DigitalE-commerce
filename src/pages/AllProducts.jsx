@@ -95,8 +95,40 @@ function AllProducts() {
   }, [search, category, minPrice, maxPrice, products]);
 
   const addToCart = (product) => {
-    console.log("Added to cart:", product);
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+    const isInCart = cart.some((p) => p._id === product._id);
+
+    if (isInCart) {
+      const newCart = cart.filter((p) => p._id !== product._id);
+      const newFavs = favorites.filter((p) => p._id !== product._id);
+      localStorage.setItem("cart", JSON.stringify(newCart));
+      localStorage.setItem("favorites", JSON.stringify(newFavs));
+
+      // Use a unique toastId for removal and a custom color
+      toast("تمت الإزالة من السلة!", {
+        toastId: `remove-${product._id}`,
+        style: { background: "#f56565", color: "#fff" }, // red
+      });
+    } else {
+      cart.push(product);
+      favorites.push(product);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+
+      // Unique toastId for adding
+      toast("تمت الإضافة إلى السلة!", {
+        toastId: `add-${product._id}`,
+        style: { background: "#48bb78", color: "#fff" }, // green
+      });
+    }
+
+    setProducts([...products]); // trigger re-render
   };
+
+
+
 
   return (
     <div className="min-h-screen bg-white px-4 sm:px-6 py-8" dir="rtl">
@@ -209,7 +241,12 @@ function AllProducts() {
 
                 {/* Buttons */}
                 <button
-                  className="mt-4 w-full py-2 bg-[var(--purple-dark)] text-white rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform"
+                  className={`mt-4 w-full py-2 flex items-center justify-center gap-2 rounded-lg transition-transform
+                    ${
+                      JSON.parse(localStorage.getItem("cart") || "[]").some((item) => item._id === p._id)
+                        ? "bg-[var(--purple-dark)] text-white"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     const token = localStorage.getItem("token");
@@ -218,12 +255,14 @@ function AllProducts() {
                       return;
                     }
                     addToCart(p);
-                    toast.success("تم إضافة المنتج إلى السلة!");
                   }}
                 >
                   <AiOutlineShoppingCart />
-                  أضف إلى السلة
+                  {JSON.parse(localStorage.getItem("cart") || "[]").some((item) => item._id === p._id)
+                    ? "إزالة من السلة"
+                    : "أضف إلى السلة"}
                 </button>
+
 
                 <button
                   onClick={(e) => {

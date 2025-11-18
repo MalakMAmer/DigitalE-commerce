@@ -31,7 +31,7 @@ function Navbar() {
           {/* Left: Login + "Have an account?" + Cart */}
           <div className="hidden sm:flex items-center gap-4">
             <Link
-              to="/favProduct"
+              to="/favProducts"
               className="text-[var(--purple-light)] hover:text-purple-500 transition-all"
             >
               <ShoppingCart size={24} />
