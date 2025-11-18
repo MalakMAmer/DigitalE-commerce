@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer, toast, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   FaSearch,
   FaBook,
@@ -6,7 +8,9 @@ import {
   FaLaptopCode,
   FaTags,
   FaClipboardList,
+  FaTag,
 } from "react-icons/fa";
+import { AiOutlineShoppingCart } from "react-icons/ai";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -90,9 +94,13 @@ function AllProducts() {
     setFiltered(result);
   }, [search, category, minPrice, maxPrice, products]);
 
+  const addToCart = (product) => {
+    console.log("Added to cart:", product);
+  };
+
   return (
     <div className="min-h-screen bg-white px-4 sm:px-6 py-8" dir="rtl">
-
+      
       {/* Search Bar */}
       <div className="max-w-4xl mx-auto flex items-center gap-3 bg-gray-100 rounded-xl p-3 shadow-sm">
         <FaSearch className="text-gray-500" size={20} />
@@ -114,7 +122,7 @@ function AllProducts() {
             className={`flex flex-col items-center gap-1 p-3 rounded-xl text-sm font-semibold transition-all
               ${
                 category === cat.key
-                  ? "bg-[var(--purple-light)] text-white shadow-md scale-105"
+                  ? "bg-[var(--purple-light)] text-white shadow-md"
                   : "bg-gray-100 text-gray-700 hover:scale-105"
               }`}
           >
@@ -124,7 +132,7 @@ function AllProducts() {
         ))}
       </div>
 
-      {/* Price Filter – mobile responsive */}
+      {/* Price Filter */}
       <div className="max-w-4xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
         <input
           type="number"
@@ -134,9 +142,7 @@ function AllProducts() {
           onChange={(e) => setMinPrice(Math.max(1, Number(e.target.value)))}
           className="border rounded-lg p-2 w-full sm:w-32 outline-[var(--purple-light)]"
         />
-
         <span className="text-gray-600 hidden sm:block">—</span>
-
         <input
           type="number"
           placeholder="السعر الأقصى"
@@ -145,7 +151,6 @@ function AllProducts() {
           onChange={(e) => setMaxPrice(Math.max(1, Number(e.target.value)))}
           className="border rounded-lg p-2 w-full sm:w-32 outline-[var(--purple-light)]"
         />
-
         <button
           onClick={() => {
             setMinPrice("");
@@ -164,61 +169,73 @@ function AllProducts() {
             <div
               key={p._id}
               onClick={() => navigate(`/product/${p._id}`)}
-              className="bg-white rounded-md shadow-md border hover:shadow-xl hover:scale-[1.01] transition-all cursor-pointer overflow-hidden"
+              className="bg-white rounded-md shadow-md border cursor-pointer overflow-hidden relative group"
             >
-              {/* FULL-WIDTH IMAGE – NO PADDING */}
+              {/* Sale Badge */}
+              {p.sale > 0 && (
+                <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                  خصم {p.sale}%
+                </div>
+              )}
+
+              {/* Category Icon */}
+              <div className="absolute top-2 left-2 bg-purple-700 text-white p-1 rounded-full">
+                <FaTag size={16} />
+              </div>
+
+              {/* Full-width Image */}
               <img
                 src={p.images?.[0] || "https://via.placeholder.com/200"}
                 alt={p.name}
                 className="w-full h-48 object-cover"
               />
 
-              {/* CONTENT */}
+              {/* Content */}
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-900">{p.name}</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-1">
+                  <FaTags className="text-purple-600" />
+                  {p.name}
+                </h2>
 
                 {/* Price */}
-                <div className="mt-2">
-                  {p.oldPrice && (
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span className="line-through">{p.oldPrice} دينار عراقي</span>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                        -{p.savings || "—"}
-                      </span>
-                    </div>
-                  )}
-
-                  <p className="text-purple-700 font-bold text-2xl mt-1">
-                    {p.price} دينار عراقي
-                  </p>
+                <div className="flex items-center gap-2 text-purple-700 font-bold text-lg mb-2">
+                  {p.price} دينار عراقي
                 </div>
 
-                {/* Description */}
-                <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                  {p.description || "لا يوجد وصف متاح"}
+                {/* Short Description */}
+                <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                  {p.shortDescription || "لا يوجد وصف متاح"}
                 </p>
 
-                {/* Add to Cart */}
+                {/* Buttons */}
                 <button
-                  className="mt-4 w-full py-2 bg-[var(--purple-dark)] text-white rounded-lg transition-transform duration-200 hover:scale-105"
-                  onClick={(e) => e.stopPropagation()}
+                  className="mt-4 w-full py-2 bg-[var(--purple-dark)] text-white rounded-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                      toast.warning("يجب تسجيل الدخول لإضافة المنتج إلى السلة");
+                      return;
+                    }
+                    addToCart(p);
+                    toast.success("تم إضافة المنتج إلى السلة!");
+                  }}
                 >
+                  <AiOutlineShoppingCart />
                   أضف إلى السلة
                 </button>
 
-                {/* Details */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/product/${p._id}`);
                   }}
-                  className="mt-2 w-full py-2 bg-[var(--purple-light)] text-white rounded-lg transition-all hover:bg-[var(--purple-dark)] hover:scale-105"
+                  className="mt-2 w-full py-2 bg-[var(--purple-light)] text-white rounded-lg hover:bg-[var(--purple-dark)] transition-colors"
                 >
                   عرض التفاصيل
                 </button>
               </div>
             </div>
-
           ))
         ) : (
           <p className="text-center col-span-full text-gray-500 text-lg mt-10">
@@ -226,6 +243,20 @@ function AllProducts() {
           </p>
         )}
       </div>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={true}          
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Zoom}
+      />
     </div>
   );
 }

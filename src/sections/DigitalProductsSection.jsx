@@ -190,10 +190,10 @@ function DigitalProductsSection() {
                   <div className="p-3 text-right">
 
                     {/* Title + Tag Icon */}
-                    <div className="flex items-center justify-end gap-1 mb-1">
-                      
-                      <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                        {product.title}<AiOutlineTag className="text-purple-600 text-sm" />
+                    <div className="flex items-center gap-1 mb-1">
+                      <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 flex gap-1 items-center">
+                        <AiOutlineTag className="text-purple-600 text-sm" />
+                        {product.name}
                       </h3>
                     </div>
 
