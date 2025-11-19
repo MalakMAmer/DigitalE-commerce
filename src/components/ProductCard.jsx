@@ -1,33 +1,52 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { AiOutlineShoppingCart } from "react-icons/ai";
 
-function ProductCard({ product }) {
-  const { i18n } = useTranslation()
-  const lang = i18n.language
+function ProductCard({ product, addToCart }) {
+  const navigate = useNavigate();
+  const inCart = JSON.parse(localStorage.getItem("cart") || "[]").some(
+    (item) => item._id === product._id
+  );
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-full h-44 object-cover"
-      />
-      <div className="p-5 text-right">
-        <h4 className="font-semibold text-gray-900 mb-1">{product.name}</h4>
-        <p className="text-sm text-gray-600 mb-4">{typeof product.description === 'object' ? product.description.ar : product.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-gray-900">{product.price} da</span>
-          <Link
-            to={`/product/${product._id}`}
-            className="bg-purple-700 text-white px-3 py-1.5 rounded-md text-sm hover:bg-purple-800 transition-all"
-          >
-            عرض المنتج
-          </Link>
+    <div
+      onClick={() => navigate(`/product/${product._id}`)}
+      className="flex-shrink-0 w-56 bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:scale-105 transition-transform relative"
+    >
+      {/* Sale Badge */}
+      {product.sale > 0 && (
+        <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+          خصم {product.sale}%
         </div>
+      )}
+
+      {/* Product Image */}
+      <img
+        src={product.images?.[0] || "https://via.placeholder.com/200"}
+        alt={product.name}
+        className="w-full h-48 object-cover"
+      />
+
+      {/* Product Info */}
+      <div className="p-4">
+        <h3 className="text-md font-semibold text-gray-900 mb-1">{product.name}</h3>
+        <p className="text-purple-700 font-bold text-lg">{product.price} دينار عراقي</p>
+
+        <button
+          className={`mt-4 w-full py-2 flex items-center justify-center gap-2 rounded-lg transition-transform ${
+            inCart ? "bg-[var(--purple-dark)] text-white" : "bg-green-600 text-white hover:bg-green-700"
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            addToCart(product);
+          }}
+        >
+          <AiOutlineShoppingCart />
+          {inCart ? "إزالة من السلة" : "أضف إلى السلة"}
+        </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default ProductCard
+export default ProductCard;

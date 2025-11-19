@@ -13,6 +13,7 @@ import SalesHeader from '../components/SalesHeader'
 import ContactButton from '../components/ContactButton'
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import AllProductSec from '../components/AllProductSec'
 
 function Home() {
     const location = useLocation();
@@ -33,6 +34,7 @@ function Home() {
             {/* <ProductsList /> */}
             <DigitalProductsSection />
             <SalesHeader />
+            <AllProductSec />
             {/* <Team /> */}
             {/* <SignUpSection /> */}
             <FAQSection />

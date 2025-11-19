@@ -15,6 +15,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Lottie from 'lottie-react'
 import loadingAnimation from '../assets/loading.json'
+import Categories from "../components/Categories";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -159,23 +160,11 @@ function AllProducts() {
       </div>
 
       {/* Categories */}
-      <div className="max-w-5xl mx-auto flex gap-4 justify-center mt-8 flex-wrap">
-        {dynamicCategories.map((cat) => (
-          <button
-            key={cat.key}
-            onClick={() => setCategory(cat.key)}
-            className={`flex flex-col items-center gap-1 p-3 rounded-xl text-sm font-semibold transition-all
-              ${
-                category === cat.key
-                  ? "bg-[var(--purple-light)] text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:scale-105"
-              }`}
-          >
-            {cat.icon}
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      <Categories
+        categories={dynamicCategories}
+        selectedCategory={category}
+        onSelectCategory={setCategory}
+      />
 
       {/* Price Filter */}
       <div className="max-w-4xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">

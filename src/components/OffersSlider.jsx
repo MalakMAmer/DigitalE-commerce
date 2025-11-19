@@ -58,79 +58,87 @@ function OffersSlider() {
   if (!offers.length) return null;
 
   return (
-    <div className="flex justify-center items-start py-10">
-        <div className="mx-auto flex items-center justify-between gap-4">
+    <div className="w-full flex justify-center items-start">
+  <div className="
+      w-full 
+      sm:max-w-2xl 
+      flex items-center justify-between 
+      gap-2 sm:gap-4
+      px-0
+    ">
 
-        {/* Prev Button */}
-        <button
-          onClick={prevSlide}
-          className="w-12 h-12 flex justify-center items-center
-          bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
-          hover:bg-[var(--purple-light-trans)] hover:text-white transition"
+    {/* Prev Button */}
+    <button
+      onClick={prevSlide}
+      className="w-12 h-12 flex justify-center items-center
+      bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
+      hover:bg-[var(--purple-light-trans)] hover:text-white transition hidden sm:flex"
+    >
+      ‹
+    </button>
+
+    {/* Slider */}
+    <div className="relative overflow-hidden flex-1">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={offers[current].id}
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.97 }}
+          transition={{ duration: 0.4 }}
+          className="rounded-2xl bg-white/80 backdrop-blur-md 
+          shadow-lg border border-purple-300/40 overflow-hidden"
         >
-          ‹
-        </button>
+          <img
+            src={offers[current].image}
+            alt={offers[current].title}
+            className="w-full h-56 sm:h-72 object-cover"
+          />
 
-        {/* Slider */}
-        <div className="relative overflow-hidden flex-1">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={offers[current].id}
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.4 }}
-              className="rounded-2xl bg-white/80 backdrop-blur-md 
-              shadow-lg border border-purple-300/40 overflow-hidden"
-            >
-              <img
-                src={offers[current].image}
-                alt={offers[current].title}
-                className="w-full h-72 object-cover"
-              />
+          <div className="p-4 sm:p-6 text-right">
+            <h3 className="text-xl sm:text-3xl font-bold text-gray-900">
+              {offers[current].title}
+            </h3>
 
-              <div className="p-6 text-right">
-                <h3 className="text-3xl font-bold text-gray-900">
-                  {offers[current].title}
-                </h3>
-
-                <p className="text-gray-700 mt-2 leading-relaxed text-lg">
-                  {offers[current].description}
-                </p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Dots */}
-          <div className="flex justify-center mt-5 gap-3">
-            {offers.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setCurrent(index);
-                  startTimer();
-                }}
-                className={`rounded-full transition-all
-                ${index === current
-                  ? "w-4 h-4 bg-purple-600 shadow-[0_0_8px_rgba(139,92,246,0.6)]"
-                  : "w-3 h-3 bg-gray-300"
-                }`}
-              />
-            ))}
+            <p className="text-gray-700 mt-2 leading-relaxed text-sm sm:text-lg">
+              {offers[current].description}
+            </p>
           </div>
-        </div>
+        </motion.div>
+      </AnimatePresence>
 
-        {/* Next Button */}
-        <button
-          onClick={nextSlide}
-          className="w-12 h-12 flex justify-center items-center
-          bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
-          hover:bg-[var(--purple-light-trans)] hover:text-white transition"
-        >
-          ›
-        </button>
+      {/* Dots */}
+      <div className="flex justify-center mt-4 sm:mt-5 gap-2 sm:gap-3">
+        {offers.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setCurrent(index);
+              startTimer();
+            }}
+            className={`
+              rounded-full transition-all
+              ${index === current
+                ? "w-3 h-3 sm:w-4 sm:h-4 bg-purple-600 shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+                : "w-2 h-2 sm:w-3 sm:h-3 bg-gray-300"
+              }
+            `}
+          />
+        ))}
       </div>
     </div>
+
+    {/* Next button (hidden on phones) */}
+    <button
+      onClick={nextSlide}
+      className="w-12 h-12 flex justify-center items-center
+      bg-white shadow-lg rounded-full text-[var(--purple-light-trans)]
+      hover:bg-[var(--purple-light-trans)] hover:text-white transition hidden sm:flex"
+    >
+      ›
+    </button>
+  </div>
+</div>
     
   );
 }

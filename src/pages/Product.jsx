@@ -130,7 +130,7 @@ function Product() {
     </div>
   );
 
-  if (!product) return <div className="max-w-6xl mx-auto p-6 text-center text-xl">جاري التحميل...</div>;
+  // if (!product) return <div className="max-w-6xl mx-auto p-6 text-center text-xl">جاري التحميل...</div>;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-16">

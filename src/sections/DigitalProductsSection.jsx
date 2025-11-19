@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { AiOutlineShoppingCart, AiOutlineTag, AiOutlineStar } from "react-icons/ai";
 import OffersSlider from "../components/OffersSlider";
 import AllProducts from "../pages/AllProducts";
+import Categories from "../components/Categories";
+import AllProductSec from "../components/AllProductSec";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -191,7 +193,8 @@ function DigitalProductsSection() {
         </motion.h2>
 
         {/* All Products */}
-        <AllProducts />
+        <Categories />
+        {/* <AllProducts /> */}
       </div>
     </section>
   );

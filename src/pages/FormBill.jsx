@@ -16,7 +16,7 @@ function FormBill() {
         className="bg-white shadow-2xl rounded-2xl p-8 max-w-lg w-full text-center border border-purple-200"
       >
         <CheckCircle className="text-green-500 w-20 h-20 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-purple-700 mb-2">تم إرسال الطلب بنجاح ✅</h2>
+        <h2 className="text-3xl font-bold text-purple-700 mb-2">تم إرسال الطلب بنجاح </h2>
         <p className="text-gray-500 mb-6">هذه هي تفاصيل الفاتورة الخاصة بك</p>
 
         <div className="text-right space-y-4">
@@ -51,6 +51,9 @@ function FormBill() {
         </div>
 
         <div className="mt-8">
+          <p className="text-red-600 font-semibold mb-4">
+            ⚠️ يرجى أخذ لقطة شاشة لهذه الفاتورة للاحتفاظ بها، وإتمام التحويل البنكي باستخدام الطريقة المحددة، ثم إرسال لقطة الشاشة إلى support@bmdiq.com للتأكيد.
+          </p>
           <Link
             to="/"
             className="bg-purple-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-purple-700 transition-all"
@@ -61,7 +64,7 @@ function FormBill() {
       </motion.div>
 
       <p className="mt-6 text-gray-400 text-sm">
-        يمكنك أخذ لقطة شاشة لهذه الفاتورة للاحتفاظ بها 💜
+        يجب التأكد من إرسال لقطة الشاشة مع التحويل البنكي إلى support@bmdiq.com 💜
       </p>
     </div>
   )

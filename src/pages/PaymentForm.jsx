@@ -11,23 +11,29 @@ import { useLocation } from "react-router-dom";
 
 
 function PaymentForm() {
-  const cost = product.price || 100;
-  const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors }, watch, reset, trigger } = useForm()
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors }, watch, reset, trigger } = useForm();
 
   const fees = {
     'زين كاش': 0.02,
     'تحويل بنكي': 0.015
-  }
+  };
+
+  const location = useLocation();
+  const product = location.state || {}; // data from Product page
+  const cost = product.price || 0;
 
   const calculateTotal = (method) => {
-    const feeRate = fees[method] || 0
-    const fee = cost * feeRate
-    return { cost, fee, total: cost + fee }
-  }
+    const feeRate = fees[method] || 0;
+    const fee = cost * feeRate;
+    return { cost, fee, total: cost + fee };
+  };
+
+  const selectedMethod = watch("paymentMethod") || "زين كاش";
+  const totals = calculateTotal(selectedMethod);
 
   const onSubmit = async (data) => {
-    const totals = calculateTotal(data.paymentMethod)
+    const totals = calculateTotal(data.paymentMethod);
     const payload = {
       name: data.name,
       email: data.email,
@@ -44,12 +50,11 @@ function PaymentForm() {
       productImage: product.image || "",
 
       // payment data
-      paymentMethod: data.paymentMethod || 'غير محدد',
-      fees: `${(totals.fee).toFixed(2)} IQD`,
+      paymentMethod: data.paymentMethod || "غير محدد",
+      fees: `${totals.fee.toFixed(2)} IQD`,
       cost: `${totals.cost} IQD`,
-      total: `${(totals.total).toFixed(2)} IQD`
+      total: `${totals.total.toFixed(2)} IQD`,
     };
-
 
     try {
       await emailjs.send(
@@ -57,48 +62,40 @@ function PaymentForm() {
         import.meta.env.VITE_EMAILJS_TEMPLATE_USER,
         payload,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      )
+      );
       await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE,
         import.meta.env.VITE_EMAILJS_TEMPLATE_ADMIN,
         payload,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      )
+      );
       toast.success('تم إرسال الطلب بنجاح!', {
         position: "top-right",
         autoClose: 4000,
         transition: Slide
-      })
-      reset()
-      navigate('/bill', { state: payload })
+      });
+      reset();
+      navigate('/bill', { state: payload });
     } catch (err) {
-      console.error(err)
+      console.error(err);
       toast.error('حدث خطأ أثناء إرسال الطلب', {
         position: "top-right",
         autoClose: 4000,
         transition: Slide
-      })
+      });
     }
-  }
+  };
 
   const onError = async () => {
-    // Trigger all validations and show one toast
-    const valid = await trigger()
+    const valid = await trigger();
     if (!valid) {
       toast.error("يرجى ملء جميع الحقول المطلوبة قبل الإرسال", {
         position: "top-right",
         autoClose: 4000,
         transition: Slide
-      })
+      });
     }
-  }
-
-  const selectedMethod = watch("paymentMethod")
-  const totals = calculateTotal(selectedMethod)
-
-
-  const location = useLocation();
-  const product = location.state || {};
+  };
 
 
   return (

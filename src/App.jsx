@@ -16,6 +16,7 @@ import FavProducts from './pages/FavProducts'
 import PaymentForm from './pages/PaymentForm'
 import FormBill from './pages/FormBill'
 import AllProducts from './pages/AllProducts'
+import CategoryProducts from './pages/CategoryProducts'
 
 function App() {
   const { i18n } = useTranslation()
@@ -46,6 +47,7 @@ function App() {
           <Route path="/products" element={<AllProducts />} />
           <Route path="/payment" element={<PaymentForm />} />
           <Route path="/bill" element={<FormBill />} />
+          <Route path="/category/:categoryKey" element={<CategoryProducts />} />
           <Route
             path="/dashboard"
             element={
