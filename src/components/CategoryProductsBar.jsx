@@ -6,52 +6,29 @@ import ProductCard from "./ProductCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function CategoryProductsBar({ categoryKey }) {
+const mainCategoryNames = {
+  entertainment: "ترفيه",
+  cards: "بطاقات",
+  software: "برامج",
+  games: "ألعاب",
+};
+
+function CategoryProductsBar({ mainCategory }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mainCategoryName, setMainCategoryName] = useState("");
-
-  const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-    const isInCart = cart.some((p) => p._id === product._id);
-
-    if (isInCart) {
-      const newCart = cart.filter((p) => p._id !== product._id);
-      const newFavs = favorites.filter((p) => p._id !== product._id);
-      localStorage.setItem("cart", JSON.stringify(newCart));
-      localStorage.setItem("favorites", JSON.stringify(newFavs));
-    } else {
-      cart.push(product);
-      favorites.push(product);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-    }
-    setProducts([...products]); // trigger re-render
-  };
+  const [mainCategoryName, setMainCategoryName] = useState(
+    mainCategoryNames[mainCategory] || mainCategory
+  );
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`${API_URL}/api/products?mainCategory=${categoryKey}`)
-      .then((res) => {
-        setProducts(res.data);
 
-        // Auto-detect main category name from first product
-        if (res.data.length > 0) {
-          const mainName =
-            res.data[0]?.category?.mainCategory?.name ||
-            res.data[0]?.category?.name ||
-            "منتجات";
-          setMainCategoryName(mainName);
-        } else {
-          setMainCategoryName("منتجات");
-        }
-      })
+    axios
+      .get(`${API_URL}/api/categories/products?mainCategory=${mainCategory}`)
+      .then((res) => setProducts(res.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [categoryKey]);
+  }, [mainCategory]);
 
   if (loading)
     return (
@@ -69,7 +46,7 @@ function CategoryProductsBar({ categoryKey }) {
     <section className="bg-gray-50 py-6 my-8">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-right text-3xl sm:text-4xl md:text-5xl font-extrabold text-purple-700 mb-6">
-          {mainCategoryName}
+          {mainCategoryName} {/* Arabic name from mapping */}
         </h2>
 
         <div className="relative min-h-[280px]">
@@ -82,7 +59,20 @@ function CategoryProductsBar({ categoryKey }) {
           ) : (
             <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-gray-200 py-2">
               {products.map((p) => (
-                <ProductCard key={p._id} product={p} addToCart={addToCart} />
+                <ProductCard
+                  key={p._id}
+                  product={p}
+                  addToCart={() => {
+                    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+                    if (!cart.some((item) => item._id === p._id)) cart.push(p);
+                    if (!favorites.some((item) => item._id === p._id)) favorites.push(p);
+
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    localStorage.setItem("favorites", JSON.stringify(favorites));
+                  }}
+                />
               ))}
             </div>
           )}

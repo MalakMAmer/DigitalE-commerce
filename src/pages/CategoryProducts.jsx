@@ -7,7 +7,7 @@ import loadingAnimation from "../assets/loading.json";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function CategoryProducts() {
-  const { categoryKey } = useParams();
+  const { mainCategory } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categoryName, setCategoryName] = useState("");
@@ -16,19 +16,18 @@ function CategoryProducts() {
   useEffect(() => {
     setLoading(true);
 
-    // Fetch categories and products in parallel
-    const fetchCategories = axios.get(`${API_URL}/api/categories`);
-    const fetchProducts = axios.get(`${API_URL}/api/products?category=${categoryKey}`);
+    const fetchMainCategory = axios.get(`${API_URL}/api/categories?mainCategory=${mainCategory}`);
+    const fetchProducts = axios.get(`${API_URL}/api/categories/products?mainCategory=${mainCategory}`);
 
-    Promise.all([fetchCategories, fetchProducts])
+    Promise.all([fetchMainCategory, fetchProducts])
       .then(([catRes, prodRes]) => {
-        const category = catRes.data.find(c => c.key === categoryKey);
-        setCategoryName(category?.name_ar || category?.name || "الفئة");
+        const mainCat = catRes.data[0];
+        setCategoryName(mainCat?.name_ar || mainCategory || "الفئة");
         setProducts(prodRes.data);
       })
-      .catch(err => console.error(err))
+      .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [categoryKey]);
+  }, [mainCategory]);
 
   if (loading)
     return (
@@ -67,23 +66,15 @@ function CategoryProducts() {
                 className="w-full h-52 object-cover"
               />
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  {p.name}
-                </h2>
-                <p className="text-purple-700 font-bold text-lg mb-1">
-                  {p.price} دينار عراقي
-                </p>
-                <p className="text-gray-500 text-sm line-clamp-2">
-                  {p.shortDescription || "لا يوجد وصف متاح"}
-                </p>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">{p.name}</h2>
+                <p className="text-purple-700 font-bold text-lg mb-1">{p.price} دينار عراقي</p>
+                <p className="text-gray-500 text-sm line-clamp-2">{p.shortDescription || "لا يوجد وصف متاح"}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500 text-lg mt-10">
-          لا توجد منتجات في هذه الفئة.
-        </p>
+        <p className="text-center text-gray-500 text-lg mt-10">لا توجد منتجات في هذه الفئة.</p>
       )}
     </div>
   );

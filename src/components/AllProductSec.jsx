@@ -13,7 +13,16 @@ function AllProductSec() {
     axios
       .get(`${API_URL}/api/categories?mainCategory=true`)
       .then((res) => {
-        setMainCategories(res.data);
+        // Filter unique main categories by mainCategory key
+        const uniqueMainCats = [];
+        const seen = new Set();
+        res.data.forEach((cat) => {
+          if (!seen.has(cat.mainCategory)) {
+            uniqueMainCats.push(cat);
+            seen.add(cat.mainCategory);
+          }
+        });
+        setMainCategories(uniqueMainCats);
       })
       .catch((err) => console.error("Error fetching main categories:", err));
   }, []);
@@ -24,8 +33,9 @@ function AllProductSec() {
       {mainCategories.length > 0 ? (
         mainCategories.map((cat) => (
           <CategoryProductsBar
-            key={cat._id}
-            categoryKey={cat._id}
+            key={cat._id}               // unique key
+            mainCategory={cat.mainCategory}
+            categoryName={cat.name_ar}  // Arabic display name
           />
         ))
       ) : (
