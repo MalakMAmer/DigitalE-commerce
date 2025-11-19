@@ -5,7 +5,7 @@ import Lottie from "lottie-react";
 import loadingAnimation from "../../assets/loading.json";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { HiMenu, HiX } from "react-icons/hi";
 import ProductsDash from "./ProductsDash";
 import OffersDash from "./OffersDash";
 import SalesDash from "./SalesDash";
@@ -110,7 +110,7 @@ export default function Dashboard() {
       setOffers(all.data || []);
       return res.data;
     } catch (err) {
-      console.error(err);
+      console.error("Offer create failed:", err.response?.data || err.message);
       toast.error("فشل إضافة العرض");
       throw err;
     }
@@ -118,11 +118,11 @@ export default function Dashboard() {
 
   const deleteOffer = async (id) => {
     try {
-      await axios.delete(`${API_URL}/api/admin/offers/${id}`, authHeader());
+      const res = await axios.delete(`${API_URL}/api/admin/offers/${id}`, authHeader());
       setOffers((prev) => prev.filter((o) => o._id !== id));
       toast.success("تم حذف العرض");
     } catch (err) {
-      console.error(err);
+      console.error("Offer delete failed:", err.response?.data || err.message);
       toast.error("فشل حذف العرض");
     }
   };
@@ -227,67 +227,101 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Lottie animationData={loadingAnimation} loop autoplay style={{ width: 250, height: 250 }} />
-      </div>
-    );
-  }
+
+  // ---------- ui ----------
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ---------- initial load ----------
+  useEffect(() => {
+    const loadAll = async () => {
+      setLoading(true);
+      try {
+        const [p, of, s, f, c] = await Promise.all([
+          axios.get(`${API_URL}/api/products`),
+          axios.get(`${API_URL}/api/offers`),
+          axios.get(`${API_URL}/api/sales`),
+          axios.get(`${API_URL}/api/faq`),
+          axios.get(`${API_URL}/api/categories`),
+        ]);
+        setProducts(p.data || []);
+        setOffers(of.data || []);
+        setSales(s.data || []);
+        setFaqs(f.data || []);
+        setCategories(c.data || []);
+      } catch (err) {
+        console.error("Dashboard initial load failed:", err);
+        toast.error("فشل تحميل البيانات الأولية");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAll();
+  }, []);
+
+  // ---------- logout ----------
+  // const logout = () => {
+  //   localStorage.removeItem("token");
+  //   navigate("/login");
+  // };
+
+  // ---------- sidebar buttons ----------
+  const sidebarButtons = (
+    <>
+      <button onClick={() => { setActiveSection("products"); setSidebarOpen(false); }}
+        className={`p-3 rounded-xl w-full ${activeSection === "products" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>منتجات</button>
+      <button onClick={() => { setActiveSection("offers"); setSidebarOpen(false); }}
+        className={`p-3 rounded-xl w-full ${activeSection === "offers" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>عروض</button>
+      <button onClick={() => { setActiveSection("sales"); setSidebarOpen(false); }}
+        className={`p-3 rounded-xl w-full ${activeSection === "sales" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>هيدر الصور</button>
+      <button onClick={() => { setActiveSection("faq"); setSidebarOpen(false); }}
+        className={`p-3 rounded-xl w-full ${activeSection === "faq" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>الأسئلة الشائعة</button>
+      <button onClick={() => { setActiveSection("categories"); setSidebarOpen(false); }}
+        className={`p-3 rounded-xl w-full ${activeSection === "categories" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>التصنيفات</button>
+    </>
+  );
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 flex">
-      <div className="flex-1 p-8">
-        {/* header */}
-        <div className="flex justify-between items-center mb-6">
+      {/* ---------- Large screen sidebar ---------- */}
+      <div className="hidden md:flex w-64 bg-purple-700 text-white p-6 flex-col gap-3 shadow-xl">
+        {sidebarButtons}
+      </div>
+
+      {/* ---------- Main content ---------- */}
+      <div className="flex-1 p-4 md:p-8">
+        {/* Small screen top navbar */}
+        <div className="flex md:hidden justify-between items-center mb-4 bg-purple-700 text-white p-3 rounded-lg">
+          <h1 className="text-xl font-bold">لوحة التحكم</h1>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+            {sidebarOpen ? <HiX size={28} /> : <HiMenu size={28} />}
+          </button>
+        </div>
+
+        {/* Large screen header */}
+        <div className="hidden md:flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-purple-700">لوحة التحكم</h1>
           <div className="flex gap-3">
             <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded-lg">تسجيل الخروج</button>
           </div>
         </div>
 
-        {/* section container */}
+        {/* Small screen sidebar overlay */}
+        {sidebarOpen && (
+          <div className="md:hidden fixed inset-0 bg-black/40 z-50">
+            <div className="w-64 bg-purple-700 text-white p-6 flex flex-col gap-3 h-full shadow-xl">
+              {sidebarButtons}
+            </div>
+          </div>
+        )}
+
+        {/* Section container */}
         <div>
-          {activeSection === "products" && (
-            <ProductsDash
-              products={products}
-              categories={categories}
-              onCreate={createProduct}
-              onUpdate={updateProduct}
-              onDelete={deleteProduct}
-            />
-          )}
-
-          {activeSection === "offers" && (
-            <OffersDash offers={offers} onCreate={createOffer} onDelete={deleteOffer} />
-          )}
-
-          {activeSection === "sales" && (
-            <SalesDash sales={sales} onCreate={createSalesHeader} onDelete={deleteSalesHeader} />
-          )}
-
-          {activeSection === "faq" && (
-            <FAQDash faqs={faqs} onCreate={createFaq} onDelete={deleteFaq} />
-          )}
-
-          {activeSection === "categories" && (
-            <CategoriesDash
-              categories={categories}
-              onCreate={createCategory}
-              onUpdate={updateCategory}
-              onDelete={deleteCategory}
-            />
-          )}
+          {activeSection === "products" && <ProductsDash products={products} categories={categories} onCreate={createProduct} onUpdate={updateProduct} onDelete={deleteProduct} />}
+          {activeSection === "offers" && <OffersDash offers={offers} onCreate={createOffer} onDelete={deleteOffer} />}
+          {activeSection === "sales" && <SalesDash sales={sales} onCreate={createSalesHeader} onDelete={deleteSalesHeader} />}
+          {activeSection === "faq" && <FAQDash faqs={faqs} onCreate={createFaq} onDelete={deleteFaq} />}
+          {activeSection === "categories" && <CategoriesDash categories={categories} onCreate={createCategory} onUpdate={updateCategory} onDelete={deleteCategory} />}
         </div>
-      </div>
-
-      {/* sidebar */}
-      <div className="w-64 bg-purple-700 text-white p-6 flex flex-col gap-3 shadow-xl">
-        <button onClick={() => setActiveSection("products")} className={`p-3 rounded-xl ${activeSection === "products" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>منتجات</button>
-        <button onClick={() => setActiveSection("offers")} className={`p-3 rounded-xl ${activeSection === "offers" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>عروض</button>
-        <button onClick={() => setActiveSection("sales")} className={`p-3 rounded-xl ${activeSection === "sales" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>هيدر الصور</button>
-        <button onClick={() => setActiveSection("faq")} className={`p-3 rounded-xl ${activeSection === "faq" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>الأسئلة الشائعة</button>
-        <button onClick={() => setActiveSection("categories")} className={`p-3 rounded-xl ${activeSection === "categories" ? "bg-white text-purple-700" : "hover:bg-purple-600"}`}>التصنيفات</button>
       </div>
 
       <ToastContainer position="top-center" />

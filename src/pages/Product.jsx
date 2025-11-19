@@ -22,13 +22,12 @@ function Product() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
-
   const [product, setProduct] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [favorites, setFavorites] = useState([]);
   const [inCart, setInCart] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [categoryName, setCategoryName] = useState("");
   // Fetch product
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,14 +36,16 @@ function Product() {
         const data = res.data;
         const normalized = {
           _id: data._id || id,
-          name: data.name || "اسم المنتج",
+          name: data.title || "اسم المنتج",
           shortDescription: data.shortDescription || "لا يوجد وصف قصير",
           description: data.description || "لا وصف متوفر لهذا المنتج.",
           price: data.price || 0,
           oldPrice: data.oldPrice || null,
           sale: data.sale || 0,
-          category: data.category || "عام",
-          images: data.images && data.images.length ? data.images : ["https://via.placeholder.com/800x600?text=No+Image"],
+          category: data.mainCategory || "عام", 
+          images: data.images && data.images.length
+            ? data.images
+            : ["https://via.placeholder.com/800x600?text=No+Image"],
         };
         setProduct(normalized);
 
@@ -110,7 +111,7 @@ function Product() {
     navigate("/payment", {
       state: {
         price: product.price,
-        name: product.name,
+        name: product.title,
         productId: product._id,
         image: product.images[0],
         sale: product.sale,
@@ -124,12 +125,31 @@ function Product() {
 
   const thumbnails = useMemo(() => (product ? product.images : []), [product]);
 
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        if (product?.category) {
+          const res = await axios.get(`${API_URL}/api/categories/products/by-key?categoryKey=${product.category}`);
+            if (res.data.length > 0) {
+              setCategoryName(res.data[0].category.name_ar || "عام");
+            } else {
+              setCategoryName("عام");
+            }
+        }
+      } catch (err) {
+        console.error(err);
+        setCategoryName("عام");
+      }
+    };
+
+    fetchCategory();
+  }, [product]);
+
   if (loading) return (
     <div className="max-w-6xl min-h-screen mx-auto p-4 text-center flex items-center justify-center">
       <Lottie animationData={loadingAnimation} loop autoplay style={{ height: 250, width: 250 }} />
     </div>
   );
-
   // if (!product) return <div className="max-w-6xl mx-auto p-6 text-center text-xl">جاري التحميل...</div>;
 
   return (
@@ -159,7 +179,7 @@ function Product() {
 
             {/* Category tag */}
             <div className="absolute left-4 top-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white px-3 py-1 rounded-full flex items-center gap-1 font-semibold text-sm">
-              <AiOutlineTag /> {product.category}
+              <AiOutlineTag /> {categoryName}
             </div>
           </div>
 
@@ -183,7 +203,7 @@ function Product() {
 
           <div className="bg-gray-50 p-4 rounded-lg border space-y-2">
             <div className="flex items-center gap-2 text-sm text-gray-700">
-              <AiOutlineTag /> الفئة: {product.category}
+              <AiOutlineTag /> الفئة: {categoryName}
             </div>
             <div className="text-gray-600">{product.shortDescription}</div>
           </div>

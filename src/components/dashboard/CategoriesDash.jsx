@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 /**
  * Props:
@@ -42,7 +42,7 @@ export default function CategoriesDash({ categories = [], onCreate, onUpdate, on
     setEditingData({ 
       name_ar: cat.name_ar, 
       key: cat.key, 
-      mainCategory: cat.mainCategory, 
+      mainCategory: cat.mainCategory, // already key
       image: cat.image || "" 
     });
   };
@@ -54,9 +54,8 @@ export default function CategoriesDash({ categories = [], onCreate, onUpdate, on
     setEditingData({ name_ar: "", key: "", mainCategory: "", image: "" });
   };
 
-  // fetch only main categories from API (mainCategory === key)
-  const mainCategories = categories.filter(c => c.mainCategory === c.key);
-
+  // fetch only main categories (mainCategory === key)
+  const mainCategories = categories.filter(cat => cat.mainCategory === cat.key);
   return (
     <div className="w-full bg-white p-8 rounded-2xl shadow-lg">
       <h2 className="text-2xl font-semibold text-purple-700 mb-6">إدارة التصنيفات</h2>
@@ -101,14 +100,14 @@ export default function CategoriesDash({ categories = [], onCreate, onUpdate, on
             value={newSub.key} 
             onChange={(e) => setNewSub({ ...newSub, key: e.target.value })} 
           />
-          <select 
-            className="p-2 border rounded w-full" 
-            value={newSub.mainCategory} 
+          <select
+            className="p-2 border rounded w-full"
+            value={newSub.mainCategory || ""}
             onChange={(e) => setNewSub({ ...newSub, mainCategory: e.target.value })}
             required
           >
             <option value="">اختر الفئة الرئيسية</option>
-            {mainCategories.map(mc => (
+            {mainCategories.map((mc) => (
               <option key={mc._id} value={mc.key}>{mc.name_ar}</option>
             ))}
           </select>
@@ -140,13 +139,14 @@ export default function CategoriesDash({ categories = [], onCreate, onUpdate, on
                     value={editingData.key} 
                     onChange={(e) => setEditingData({ ...editingData, key: e.target.value })} 
                   />
-                  <select 
-                    className="p-2 border rounded w-full" 
-                    value={editingData.mainCategory} 
+                  <select
+                    className="p-2 border rounded w-full"
+                    value={editingData.mainCategory || ""}
                     onChange={(e) => setEditingData({ ...editingData, mainCategory: e.target.value })}
                     required
                   >
-                    {mainCategories.map(mc => (
+                    <option value="">اختر الفئة الرئيسية</option>
+                    {mainCategories.map((mc) => (
                       <option key={mc._id} value={mc.key}>{mc.name_ar}</option>
                     ))}
                   </select>

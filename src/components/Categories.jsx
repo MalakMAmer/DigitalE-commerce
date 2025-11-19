@@ -41,7 +41,7 @@ function Categories() {
         {categories.map((cat) => (
           <button
             key={cat.key}
-            onClick={() => handleCategoryClick(cat.key)}
+            onClick={() => navigate(`/category/${cat.key}`)}
             className="flex flex-col items-center gap-3 p-6 rounded-2xl text-lg font-semibold transition-all
               bg-white text-gray-800 hover:scale-105 shadow-md"
             style={{ minWidth: "140px", minHeight: "140px" }}

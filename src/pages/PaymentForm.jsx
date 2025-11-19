@@ -25,8 +25,15 @@ function PaymentForm() {
 
   const calculateTotal = (method) => {
     const feeRate = fees[method] || 0;
-    const fee = cost * feeRate;
-    return { cost, fee, total: cost + fee };
+    let finalCost = cost;
+
+    // Apply sale if any
+    if (product.sale && product.sale > 0) {
+      finalCost = cost * (1 - product.sale / 100);
+    }
+
+    const fee = finalCost * feeRate;
+    return { cost: finalCost, fee, total: finalCost + fee };
   };
 
   const selectedMethod = watch("paymentMethod") || "زين كاش";

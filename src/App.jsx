@@ -47,7 +47,7 @@ function App() {
           <Route path="/products" element={<AllProducts />} />
           <Route path="/payment" element={<PaymentForm />} />
           <Route path="/bill" element={<FormBill />} />
-          <Route path="/category/:categoryKey" element={<CategoryProducts />} />
+          <Route path="/category/:catKey" element={<CategoryProducts />} />
           <Route
             path="/dashboard"
             element={

@@ -1,13 +1,7 @@
 import { useState, useMemo } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-export default function ProductsDash({
-  products = [],
-  categories = [],
-  onCreate,
-  onUpdate,
-  onDelete,
-}) {
+export default function ProductsDash({ products = [], categories = [], onCreate, onDelete }) {
   const [form, setForm] = useState({
     title: "",
     price: "",
@@ -26,8 +20,9 @@ export default function ProductsDash({
   // --- Filter categories by mainCategory ---
   const filteredCategories = useMemo(() => {
     if (!form.mainCategory) return [];
-    return categories.filter((c) => c.mainCategory === form.mainCategory);
+    return categories.filter(c => c.mainCategory === form.mainCategory);
   }, [form.mainCategory, categories]);
+  console.log("Filtered subcategories:", filteredCategories);
 
   // --- Add image (max 10) ---
   const addImage = () => {
@@ -48,11 +43,22 @@ export default function ProductsDash({
 
     setSubmitting(true);
     try {
-      await onCreate({
-        ...form,
+      // Send product to backend
+      const created = await onCreate({
+        title: form.title,
+        price: Number(form.price),
+        oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
+        shortDescription: form.shortDescription,
+        longDescription: form.longDescription,
+        subcategory: filteredCategories.find((c) => c._id === form.category)?.key || "default",
+        mainCategory: form.mainCategory,
+        category: form.category, // must be _id of category
+        sale: Number(form.sale),
+        stockStatus: form.stockStatus,
         images: form.images.filter(Boolean),
       });
 
+      // Reset form
       setForm({
         title: "",
         price: "",
@@ -65,10 +71,14 @@ export default function ProductsDash({
         stockStatus: "متوفر",
         images: [""],
       });
+    } catch (err) {
+      console.error("Error creating product:", err);
     } finally {
       setSubmitting(false);
     }
   };
+
+  
 
   return (
     <div className="w-full bg-white p-8 rounded-2xl shadow-lg">
@@ -78,10 +88,8 @@ export default function ProductsDash({
 
       {/* ---------- FORM ---------- */}
       <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
         {/* RIGHT SIDE – PRODUCT DETAILS */}
         <div className="border p-5 rounded-xl space-y-4">
-
           <input
             className="p-3 border rounded-lg w-full"
             placeholder="اسم المنتج"
@@ -89,16 +97,18 @@ export default function ProductsDash({
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
 
-          <div className="flex flex-col gap-3 ">
+          <div className="flex flex-col gap-3">
             <input
               className="p-3 border rounded-lg flex-1"
               placeholder="السعر"
+              type="number"
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
             />
             <input
               className="p-3 border rounded-lg flex-1"
               placeholder="السعر القديم"
+              type="number"
               value={form.oldPrice}
               onChange={(e) => setForm({ ...form, oldPrice: e.target.value })}
             />
@@ -122,36 +132,33 @@ export default function ProductsDash({
             }
           />
 
-          {/* MAIN CATEGORY */}
           <select
             className="p-3 border rounded-lg w-full"
             value={form.mainCategory}
-            onChange={(e) =>
-              setForm({ ...form, mainCategory: e.target.value, category: "" })
-            }
+            onChange={(e) => setForm({ ...form, mainCategory: e.target.value, category: "" })}
           >
             <option value="">اختر القسم الرئيسي</option>
-            {[...new Set(categories.map((c) => c.mainCategory))].map((m) => (
+            {[...new Set(categories.map(c => c.mainCategory))].map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
 
-          {/* CATEGORY (SUB OF MAIN) */}
+          {/* Subcategory */}
           <select
             className="p-3 border rounded-lg w-full"
             value={form.category}
-            disabled={!form.mainCategory}
+            disabled={!form.mainCategory || filteredCategories.length === 0}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
           >
             <option value="">اختر الفئة</option>
-            {filteredCategories.map((sub) => (
+            {filteredCategories.map(sub => (
               <option key={sub._id} value={sub._id}>
                 {sub.name_ar} ({sub.key})
               </option>
             ))}
           </select>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
             <input
               className="p-3 border rounded-lg flex-1"
               type="number"
@@ -172,12 +179,10 @@ export default function ProductsDash({
               <option value="غير متوفر">غير متوفر</option>
             </select>
           </div>
-
         </div>
 
         {/* LEFT SIDE – IMAGES */}
         <div className="border p-5 rounded-xl">
-
           <div className="flex items-center justify-between mb-3">
             <p className="font-semibold">صور المنتج (حتى 10 صور)</p>
             <button
@@ -222,9 +227,7 @@ export default function ProductsDash({
             />
             <div className="p-4">
               <h3 className="font-semibold">{p.title}</h3>
-
-              <p className="text-sm text-gray-600">{p.category?.name_ar}</p>
-
+              <p className="text-sm text-gray-600">{p.category?.name_ar || "بدون فئة"}</p>
               <p className="mt-2 text-purple-700 font-bold">{p.price} د.ع</p>
 
               <button
