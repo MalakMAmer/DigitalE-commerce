@@ -41,7 +41,7 @@ function SalesHeader() {
   if (images.length === 0) return null; // nothing to show
 
   return (
-    <div className="pt-12 pb-20 p-4">
+    <div className="pt-12 pb-20 p-1">
       <AnimatePresence mode="wait">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
@@ -53,7 +53,7 @@ function SalesHeader() {
           <img
             src={isMobile ? images[1] : images[0]} // desktop = images[0], mobile = images[1]
             alt="sales"
-            className="w-full h-64 md:h-80 object-cover rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none"
+            className="w-full h-40 md:h-80 object-cover rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none"
           />
         </motion.div>
       </AnimatePresence>

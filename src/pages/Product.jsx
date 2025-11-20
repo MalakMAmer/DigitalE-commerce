@@ -14,8 +14,15 @@ import "react-toastify/dist/ReactToastify.css";
 import Lottie from 'lottie-react'
 import loadingAnimation from '../assets/loading.json'
 import axios from "axios";
-
+import { Helmet } from "react-helmet";
 const API_URL = import.meta.env.VITE_API_URL;
+
+{/* <Helmet>
+  <title>BMD | نتفلكس اشتراك شهري - Netflix</title>
+  <meta name="description" content="اشتراك Netflix شهري لمشاهدة الأفلام والمسلسلات العالمية.">
+  <meta name="keywords" content="نتفلكس, Netflix, اشتراك نتفلكس, عروض نتفلكس" />
+  <meta property="og:image" content={product.image} />
+</Helmet> */}
 
 function Product() {
   const { id } = useParams();

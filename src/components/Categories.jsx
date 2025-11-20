@@ -36,25 +36,27 @@ function Categories() {
   };
 
   return (
-    <section className="bg-gray-50 py-16">
+    <section className="bg-gray-50 py-16 lg:px-4">
       <div className="max-w-6xl mx-auto flex flex-wrap gap-8 justify-center">
         {categories.map((cat) => (
           <button
             key={cat.key}
             onClick={() => navigate(`/category/${cat.key}`)}
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl text-lg font-semibold transition-all
-              bg-white text-gray-800 hover:scale-105 shadow-md"
-            style={{ minWidth: "140px", minHeight: "140px" }}
+            className="flex flex-col items-center gap-3 pb-3 rounded-md text-lg font-semibold transition-all
+             bg-[var(--purple-light)] text-gray-100 hover:scale-105 shadow-md w-40 lg:w-48 h-40"
           >
-            {cat.image ? (
-              <img
-                src={cat.image}
-                alt={cat.label}
-                className="w-20 h-20 object-cover rounded-full"
-              />
-            ) : (
-              <div className="w-20 h-20 bg-gray-300 rounded-full" />
-            )}
+            <div className="w-full aspect-square overflow-hidden bg-gray-200 flex items-center justify-center">
+              {cat.image ? (
+                <img
+                  src={cat.image}
+                  alt={cat.label}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300" />
+              )}
+            </div>
+
             <span className="text-center">{cat.label}</span>
           </button>
         ))}

@@ -30,11 +30,13 @@ function Home() {
             <Hero/>
             {/* <About /> */}
             <WhyUs />
+            <SalesHeader />
             {/* <NewestOffers /> */}
             {/* <ProductsList /> */}
             <DigitalProductsSection />
             <SalesHeader />
             <AllProductSec />
+            <SalesHeader />
             {/* <Team /> */}
             {/* <SignUpSection /> */}
             <FAQSection />

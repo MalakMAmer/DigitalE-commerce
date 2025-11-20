@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../assets/Logo.png';
 import { FaReply } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { Home, Tag, ShoppingBag, Phone } from "lucide-react";
+
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,22 +65,24 @@ function Navbar() {
 
           {/* Left: Cart + Login */}
           <div className="hidden sm:flex items-center gap-4">
-            <Link to="/cart" className="relative text-purple-700 hover:text-purple-500 transition-all">
-              <ShoppingCart size={24} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all"
-              >
-                <FaReply /> تسجيل خروج
-              </button>
+              <>
+                <Link to="/cart" className="relative text-purple-700 hover:text-purple-500 transition-all">
+                  <ShoppingCart size={24} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all"
+                >
+                  <FaReply /> تسجيل خروج
+                </button>
+              </>
             ) : (
               <>
                 <Link to="/signup" className="flex items-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
@@ -114,6 +118,7 @@ function Navbar() {
         <AnimatePresence>
           {isOpen && (
             <>
+              {/* Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.4 }}
@@ -122,48 +127,113 @@ function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className="fixed inset-0 bg-black w-screen h-screen z-40"
               />
+
+              {/* Sidebar */}
               <motion.div
-                initial={{ x: '100%' }}
+                initial={{ x: "100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: '100%' }}
+                exit={{ x: "100%" }}
                 transition={{ duration: 0.3 }}
                 className="fixed top-0 right-0 h-screen w-72 bg-white z-50 shadow-xl p-6 flex flex-col"
               >
-                <button onClick={() => setIsOpen(false)} className="self-end text-purple-700 mb-6"><X size={28} /></button>
-
-                <div className="flex flex-col gap-6 text-gray-800 font-medium mt-4">
-                  {renderNavButton('home', 'الرئيسية')}
-                  {renderNavButton('offers', 'العروض')}
-                  {renderNavButton('digitalProducts', 'المتجر')}
-                  {renderNavButton('contactUs', 'اتصل بنا')}
+                {/* Top Row: Logo + Close */}
+                <div className="flex justify-between items-center mb-8">
+                  <img src={logo} alt="Logo" className="h-10 w-auto" />
+                  <button onClick={() => setIsOpen(false)} className="text-purple-700">
+                    <X size={30} />
+                  </button>
                 </div>
 
+                {/* Nav Items */}
+                <div className="flex flex-col gap-6 text-gray-800 font-medium mt-4 text-right ltr">
+
+                  <button
+                    onClick={() => { handleNavClick('home'); setIsOpen(false); }}
+                    className="flex items-center justify-end gap-3 text-lg hover:text-purple-700 transition"
+                  >
+                    <span>الرئيسية</span>
+                    <Home className="text-purple-600" size={22} />
+                  </button>
+
+                  <button
+                    onClick={() => { handleNavClick('offers'); setIsOpen(false); }}
+                    className="flex items-center justify-end gap-3 text-lg hover:text-purple-700 transition"
+                  >
+                    <span>العروض</span>
+                    <Tag className="text-purple-600" size={22} />
+                  </button>
+
+                  <button
+                    onClick={() => { handleNavClick('digitalProducts'); setIsOpen(false); }}
+                    className="flex items-center justify-end gap-3 text-lg hover:text-purple-700 transition"
+                  >
+                    <span>المتجر</span>
+                    <ShoppingBag className="text-purple-600" size={22} />
+                  </button>
+
+                  <button
+                    onClick={() => { handleNavClick('contactUs'); setIsOpen(false); }}
+                    className="flex items-center justify-end gap-3 text-lg hover:text-purple-700 transition"
+                  >
+                    <span>اتصل بنا</span>
+                    <Phone className="text-purple-600" size={22} />
+                  </button>
+
+                </div>
+
+                {/* Auth + Cart */}
                 <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 my-6">
+
                   {isLoggedIn ? (
-                    <button onClick={handleLogout} className="flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
-                      <FaReply /> تسجيل خروج
-                    </button>
+                    <div className="flex flex-col gap-4">
+                      {/* Logout */}
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center justify-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition"
+                      >
+                        <FaReply /> تسجيل خروج
+                      </button>
+
+                      {/* Cart (only when logged in) */}
+                      <Link
+                        to="/cart"
+                        onClick={() => setIsOpen(false)}
+                        className="flex justify-center items-center text-purple-700 hover:text-purple-500 py-2 rounded-md font-semibold bg-purple-100 transition relative"
+                      >
+                        <ShoppingCart size={24} />
+                        {cartCount > 0 && (
+                          <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                            {cartCount}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
                   ) : (
                     <>
-                      <Link to="/login" onClick={() => setIsOpen(false)} className="text-gray-600 text-center font-medium hover:text-purple-700 text-sm">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsOpen(false)}
+                        className="text-gray-600 text-center font-medium hover:text-purple-700 text-sm"
+                      >
                         لديك حساب؟
                       </Link>
-                      <Link to="/signup" onClick={() => setIsOpen(false)} className="flex items-center gap-1 justify-center bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition-all">
+
+                      <Link
+                        to="/signup"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center justify-center gap-1 bg-black text-white hover:bg-purple-700 px-4 py-2 rounded-md font-semibold text-sm transition"
+                      >
                         <FaReply /> سجل الآن!
                       </Link>
                     </>
                   )}
-                  <Link to="/cart" onClick={() => setIsOpen(false)} className="flex justify-center items-center text-purple-700 hover:text-purple-500 py-2 rounded-md font-semibold bg-purple-100 transition-all relative">
-                    <ShoppingCart size={24} />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{cartCount}</span>
-                    )}
-                  </Link>
+
                 </div>
               </motion.div>
             </>
           )}
         </AnimatePresence>
+
       </nav>
 
       {/* Spacer for fixed nav */}

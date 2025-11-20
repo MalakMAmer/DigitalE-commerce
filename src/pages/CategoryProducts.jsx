@@ -4,6 +4,18 @@ import { useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import loadingAnimation from "../assets/loading.json";
 import ProductCard from "../components/ProductCard";
+import { Helmet } from "react-helmet";
+
+
+{/* <Helmet>
+  <title>BMD | فئة الترفيه - اشتراكات نتفلكس، شاهد، برايم فيديو</title>
+  <meta 
+    name="description" 
+    content="اكتشف أفضل اشتراكات الترفيه: نتفلكس، شاهد، Prime Video، OSN والمزيد بأسعار منافسة." 
+  />
+  <meta name="keywords" content="نتفلكس, شاهد, prime video, osn, اشتراكات ترفيه" />
+</Helmet> */}
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
